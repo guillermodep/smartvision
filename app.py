@@ -123,6 +123,16 @@ def index():
     client_initialized = initialize_client()
     return render_template('index.html', client_initialized=client_initialized)
 
+@app.route('/check-init')
+def check_init():
+    """Endpoint para verificar si el cliente está inicializado"""
+    client_initialized = initialize_client()
+    return jsonify({
+        'initialized': client_initialized,
+        'endpoint': ENDPOINT[:10] + '...' if ENDPOINT else 'No configurado',
+        'key': KEY[:5] + '...' if KEY else 'No configurado'
+    })
+
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
     """Endpoint para extraer texto de una imagen"""
