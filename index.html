@@ -381,58 +381,6 @@
             });
         }
         
-        // Datos de ejemplo para simular la extracción de texto
-        const sampleResults = [
-            {
-                text: "JUCAY",
-                confidence: 0.95
-            },
-            {
-                text: "RESJUCAY CIA. LTDA.",
-                confidence: 0.92
-            },
-            {
-                text: "RUC: 1792996015001",
-                confidence: 0.98
-            },
-            {
-                text: "AMAZONAS N33B-147 Y ARIZAGA",
-                confidence: 0.94
-            },
-            {
-                text: "Teléfono: 2244177",
-                confidence: 0.93
-            },
-            {
-                text: "CONTRIBUYENTE REGIMEN MICROEMPRESAS",
-                confidence: 0.91
-            },
-            {
-                text: "CLAVE DE ACCESO",
-                confidence: 0.97
-            },
-            {
-                text: "30042025011792996015001200100100005862912345678",
-                confidence: 0.89
-            },
-            {
-                text: "COMPROBANTE DE FACTURA:001-001-000058629",
-                confidence: 0.96
-            },
-            {
-                text: "MESERO: ERIKA       MESA: 14",
-                confidence: 0.93
-            },
-            {
-                text: "FECHA: 30/4/2025    HORA: 13:57:42",
-                confidence: 0.95
-            },
-            {
-                text: "CLIENTE: JOSE MIGUEL GRANDA",
-                confidence: 0.94
-            }
-        ];
-        
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar autenticación
             if (!checkAuth()) return;
@@ -477,25 +425,48 @@
                 loadingIndicator.style.display = 'flex';
                 resultContainer.innerHTML = '<div class="empty-state"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="empty-text mt-3">Procesando...</p></div>';
                 
-                // Simular procesamiento (en una aplicación real, aquí se llamaría a la API)
-                setTimeout(() => {
+                // Hacer una llamada real a la API de extracción de texto
+                fetch('/extract-text', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
                     loadingIndicator.style.display = 'none';
                     
-                    // Mostrar resultados de ejemplo
-                    let resultHtml = '';
-                    sampleResults.forEach(item => {
-                        const confidence = item.confidence * 100;
-                        const confidenceClass = confidence > 80 ? 'text-success' : confidence > 60 ? 'text-warning' : 'text-danger';
-                        
-                        resultHtml += `<div class="text-item">
-                            <p class="text-content">${item.text}</p>
-                            <p class="text-confidence ${confidenceClass}">
-                                <i class="fas fa-check-circle me-1"></i> Confianza: ${confidence.toFixed(2)}%
-                            </p>
+                    if (data.error) {
+                        resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${data.error}</div>`;
+                        return;
+                    }
+                    
+                    if (data.status === 'succeeded' && data.results.length > 0) {
+                        let resultHtml = '';
+                        data.results.forEach(item => {
+                            const confidence = item.confidence * 100;
+                            const confidenceClass = confidence > 80 ? 'text-success' : confidence > 60 ? 'text-warning' : 'text-danger';
+                            
+                            resultHtml += `<div class="text-item">
+                                <p class="text-content">${item.text}</p>
+                                <p class="text-confidence ${confidenceClass}">
+                                    <i class="fas fa-check-circle me-1"></i> Confianza: ${confidence.toFixed(2)}%
+                                </p>
+                            </div>`;
+                        });
+                        resultContainer.innerHTML = resultHtml;
+                    } else {
+                        resultContainer.innerHTML = `<div class="empty-state">
+                            <i class="fas fa-search empty-icon"></i>
+                            <p class="empty-text">No se pudo extraer texto de esta imagen.</p>
                         </div>`;
-                    });
-                    resultContainer.innerHTML = resultHtml;
-                }, 2000);
+                    }
+                })
+                .catch(error => {
+                    loadingIndicator.style.display = 'none';
+                    resultContainer.innerHTML = `<div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error: ${error.message}
+                    </div>`;
+                });
             });
             
             // Permitir arrastrar y soltar archivos

@@ -51,6 +51,10 @@ def initialize_client():
         print("Endpoint o KEY no están definidos")
         return False
 
+# Inicializar el cliente al arrancar la aplicación
+client_initialized = initialize_client()
+print(f"Estado de inicialización del cliente: {client_initialized}")
+
 # Decorador para requerir autenticación
 def login_required(f):
     @wraps(f)
@@ -62,8 +66,12 @@ def login_required(f):
 
 def extract_text_from_image(image_bytes):
     """Extraer texto de una imagen usando Azure Computer Vision"""
+    global computervision_client
+    
+    # Verificar si el cliente está inicializado, si no, intentar inicializarlo
     if not computervision_client:
-        return {"error": "Cliente de Smart Vision no está inicializado"}
+        if not initialize_client():
+            return {"error": "Cliente de Smart Vision no está inicializado. Verifica las credenciales en el archivo .env"}
     
     try:
         # Imprimir información de depuración
