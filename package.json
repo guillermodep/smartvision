@@ -1,0 +1,17 @@
+{
+  "name": "smartvision",
+  "version": "1.0.0",
+  "description": "Aplicación para extraer texto de imágenes usando Smart Vision",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'Build completed'"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

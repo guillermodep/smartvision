@@ -380,7 +380,7 @@
                 loadingIndicator.style.display = 'flex';
                 resultContainer.innerHTML = '<div class="empty-state"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="empty-text mt-3">Procesando...</p></div>';
                 
-                fetch('/extract-text', {
+                fetch(window.location.origin + '/extract-text', {
                     method: 'POST',
                     body: formData
                 })
