@@ -276,6 +276,10 @@
             color: #6c757d;
             font-size: 14px;
         }
+        
+        .download-options {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -344,6 +348,21 @@
                                 <p class="empty-text">El texto extraído de la imagen aparecerá aquí.</p>
                             </div>
                         </div>
+                        
+                        <div class="download-options mt-3" id="download-options" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-download me-2"></i> Descargar Resultados</h5>
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-outline-primary" id="download-txt">
+                                    <i class="fas fa-file-alt me-2"></i> TXT
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="download-csv">
+                                    <i class="fas fa-file-csv me-2"></i> CSV
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="download-pdf">
+                                    <i class="fas fa-file-pdf me-2"></i> PDF
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -355,6 +374,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         // Verificar autenticación
         function checkAuth() {
@@ -396,6 +416,10 @@
             const loadingIndicator = document.getElementById('loading');
             const fileNameDisplay = document.getElementById('file-name');
             const fileInput = document.getElementById('image');
+            const downloadOptions = document.getElementById('download-options');
+            
+            // Variables para almacenar los resultados de la extracción
+            let extractionResults = [];
             
             // Manejar la vista previa de la imagen
             fileInput.addEventListener('change', function(event) {
@@ -436,10 +460,12 @@
                     
                     if (data.error) {
                         resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${data.error}</div>`;
+                        downloadOptions.style.display = 'none';
                         return;
                     }
                     
                     if (data.status === 'succeeded' && data.results.length > 0) {
+                        extractionResults = data.results;
                         let resultHtml = '';
                         data.results.forEach(item => {
                             const confidence = item.confidence * 100;
@@ -453,6 +479,7 @@
                             </div>`;
                         });
                         resultContainer.innerHTML = resultHtml;
+                        downloadOptions.style.display = 'block';
                     } else {
                         resultContainer.innerHTML = `<div class="empty-state">
                             <i class="fas fa-search empty-icon"></i>
@@ -466,8 +493,98 @@
                         <i class="fas fa-exclamation-circle me-2"></i>
                         Error: ${error.message}
                     </div>`;
+                    downloadOptions.style.display = 'none';
                 });
             });
+            
+            // Función para descargar como TXT
+            document.getElementById('download-txt').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                const text = extractionResults.map(item => item.text).join('\n');
+                downloadFile(text, 'texto_extraido.txt', 'text/plain');
+            });
+            
+            // Función para descargar como CSV
+            document.getElementById('download-csv').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                let csv = 'Texto,Confianza\n';
+                extractionResults.forEach(item => {
+                    // Escapar comillas en el texto para CSV
+                    const escapedText = item.text.replace(/"/g, '""');
+                    csv += `"${escapedText}",${(item.confidence * 100).toFixed(2)}\n`;
+                });
+                
+                downloadFile(csv, 'texto_extraido.csv', 'text/csv');
+            });
+            
+            // Función para descargar como PDF
+            document.getElementById('download-pdf').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                // Crear un nuevo documento PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Configurar el título
+                doc.setFontSize(16);
+                doc.text('Texto Extraído con Smart Vision', 20, 20);
+                
+                // Configurar el contenido
+                doc.setFontSize(12);
+                let y = 30;
+                
+                extractionResults.forEach((item, index) => {
+                    // Verificar si necesitamos una nueva página
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    // Agregar el texto y la confianza
+                    doc.text(`${index + 1}. ${item.text}`, 20, y);
+                    y += 7;
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Confianza: ${(item.confidence * 100).toFixed(2)}%`, 25, y);
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    y += 10;
+                });
+                
+                // Agregar fecha y hora
+                const now = new Date();
+                const dateStr = now.toLocaleDateString();
+                const timeStr = now.toLocaleTimeString();
+                doc.setFontSize(10);
+                doc.text(`Generado el ${dateStr} a las ${timeStr}`, 20, 280);
+                
+                // Guardar el PDF
+                doc.save('texto_extraido.pdf');
+            });
+            
+            // Función genérica para descargar archivos
+            function downloadFile(content, fileName, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
             
             // Permitir arrastrar y soltar archivos
             const dropArea = document.querySelector('.file-upload-label');
