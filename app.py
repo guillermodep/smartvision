@@ -2,7 +2,7 @@ import os
 import io
 import time
 import requests
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash, send_file
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 from msrest.authentication import CognitiveServicesCredentials
@@ -13,7 +13,10 @@ from functools import wraps
 # Cargar variables de entorno
 load_dotenv()
 
-app = Flask(__name__)
+# Obtener la ruta del directorio actual
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, static_folder=current_dir, static_url_path='')
 app.secret_key = os.urandom(24)  # Clave secreta para las sesiones
 
 # Configuración de Azure Computer Vision
@@ -131,37 +134,23 @@ def extract_text_from_image(image_bytes):
         print(f"Error al procesar la imagen: {str(e)}")
         return {"error": str(e)}
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
     """Página de inicio de sesión"""
-    error = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        if username == VALID_USERNAME and password == VALID_PASSWORD:
-            session['logged_in'] = True
-            session['username'] = username
-            return redirect(url_for('index'))
-        else:
-            error = 'Credenciales inválidas. Por favor, inténtalo de nuevo.'
-    
-    return render_template('login.html', error=error)
+    # Servir el archivo login.html desde la raíz del proyecto
+    return app.send_static_file('login.html')
 
 @app.route('/logout')
 def logout():
     """Cerrar sesión"""
-    session.pop('logged_in', None)
-    session.pop('username', None)
+    # No necesitamos manejar la sesión ya que la autenticación ahora es del lado del cliente
     return redirect(url_for('login'))
 
 @app.route('/')
-@login_required
 def index():
     """Página principal"""
-    # Inicializar el cliente al cargar la página
-    client_initialized = initialize_client()
-    return render_template('index.html', client_initialized=client_initialized, username=session.get('username'))
+    # Servir el archivo index.html desde la raíz del proyecto
+    return app.send_static_file('index.html')
 
 @app.route('/check-init')
 def check_init():
@@ -174,7 +163,6 @@ def check_init():
     })
 
 @app.route('/extract-text', methods=['POST'])
-@login_required
 def extract_text():
     """Endpoint para extraer texto de una imagen"""
     if 'image' not in request.files:
