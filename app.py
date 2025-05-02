@@ -2,22 +2,28 @@ import os
 import io
 import time
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 from msrest.authentication import CognitiveServicesCredentials
 from dotenv import load_dotenv
 from PIL import Image
+from functools import wraps
 
 # Cargar variables de entorno
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Clave secreta para las sesiones
 
 # Configuración de Azure Computer Vision
 ENDPOINT = os.getenv('AZURE_COMPUTER_VISION_ENDPOINT')
 KEY = os.getenv('AZURE_COMPUTER_VISION_KEY')
 API_VERSION = os.getenv('AZURE_COMPUTER_VISION_API_VERSION', '2023-04-01-preview')
+
+# Credenciales de usuario
+VALID_USERNAME = "admin"
+VALID_PASSWORD = "smartsolutions"
 
 # Imprimir información de depuración
 print("Endpoint:", ENDPOINT)
@@ -42,10 +48,19 @@ def initialize_client():
         print("Endpoint o KEY no están definidos")
         return False
 
+# Decorador para requerir autenticación
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
 def extract_text_from_image(image_bytes):
     """Extraer texto de una imagen usando Azure Computer Vision"""
     if not computervision_client:
-        return {"error": "Cliente de Azure Computer Vision no inicializado"}
+        return {"error": "Cliente de Smart Vision no está inicializado"}
     
     try:
         # Imprimir información de depuración
@@ -116,12 +131,37 @@ def extract_text_from_image(image_bytes):
         print(f"Error al procesar la imagen: {str(e)}")
         return {"error": str(e)}
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Página de inicio de sesión"""
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if username == VALID_USERNAME and password == VALID_PASSWORD:
+            session['logged_in'] = True
+            session['username'] = username
+            return redirect(url_for('index'))
+        else:
+            error = 'Credenciales inválidas. Por favor, inténtalo de nuevo.'
+    
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    """Cerrar sesión"""
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     """Página principal"""
     # Inicializar el cliente al cargar la página
     client_initialized = initialize_client()
-    return render_template('index.html', client_initialized=client_initialized)
+    return render_template('index.html', client_initialized=client_initialized, username=session.get('username'))
 
 @app.route('/check-init')
 def check_init():
@@ -134,6 +174,7 @@ def check_init():
     })
 
 @app.route('/extract-text', methods=['POST'])
+@login_required
 def extract_text():
     """Endpoint para extraer texto de una imagen"""
     if 'image' not in request.files:

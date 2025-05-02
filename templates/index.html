@@ -40,6 +40,7 @@
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid #eee;
+            position: relative;
         }
         
         .app-title {
@@ -52,6 +53,19 @@
             color: var(--secondary-color);
             font-weight: 300;
             margin-bottom: 0;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .user-welcome {
+            color: var(--secondary-color);
         }
         
         .card {
@@ -269,6 +283,13 @@
         <div class="app-header">
             <h1 class="app-title">Extractor de Texto con Smart Vision</h1>
             <p class="app-subtitle">Extrae texto de imágenes, tickets, facturas y documentos con inteligencia artificial</p>
+            
+            <div class="user-info">
+                <span class="user-welcome">Bienvenido, <strong>{{ username }}</strong></span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger ms-3">
+                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
+                </a>
+            </div>
         </div>
         
         <script>
