@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Smart Vision</title>
+    <title>Extractor de Texto con Smart Vision</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -22,81 +22,125 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: var(--dark-color);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding-top: 30px;
+            padding-bottom: 50px;
         }
         
-        .login-container {
-            max-width: 400px;
+        .container {
+            max-width: 1140px;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            width: 100%;
-        }
-        
-        .login-header {
-            text-align: center;
             margin-bottom: 30px;
         }
         
-        .login-title {
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        
+        .app-title {
             color: var(--primary-color);
             font-weight: 700;
             margin-bottom: 10px;
         }
         
-        .login-subtitle {
+        .app-subtitle {
             color: var(--secondary-color);
             font-weight: 300;
-            margin-bottom: 20px;
-        }
-        
-        .login-logo {
-            font-size: 48px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-        
-        .form-control {
-            border-radius: 8px;
-            padding: 12px 15px;
-            border: 1px solid #ced4da;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-        }
-        
-        .input-group-text {
-            background-color: var(--light-color);
-            border-radius: 8px 0 0 8px;
-            border: 1px solid #ced4da;
-            border-right: none;
-        }
-        
-        .input-group .form-control {
-            border-radius: 0 8px 8px 0;
             margin-bottom: 0;
         }
         
-        .input-group {
+        .user-info {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .user-welcome {
+            color: var(--secondary-color);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .preview-container {
+            max-width: 100%;
+            max-height: 400px;
+            overflow: auto;
+            border-radius: 8px;
             margin-bottom: 20px;
+            border: 2px dashed #dee2e6;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-container.has-image {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-container {
+            max-height: 400px;
+            overflow: auto;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
         }
         
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
-            padding: 12px 15px;
+            padding: 10px 25px;
             font-weight: 600;
             border-radius: 8px;
             transition: all 0.3s ease;
-            width: 100%;
         }
         
         .btn-primary:hover {
@@ -106,160 +150,515 @@
             box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
         }
         
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
         .alert {
             border-radius: 8px;
             padding: 15px 20px;
-            margin-bottom: 20px;
-            display: none;
         }
         
-        .login-footer {
+        .text-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .text-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-content {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .text-confidence {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #e9ecef;
+            border-color: var(--primary-color);
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .file-upload-text {
+            font-size: 16px;
+            color: #6c757d;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            color: #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .footer {
             text-align: center;
             margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
             color: #6c757d;
             font-size: 14px;
         }
         
-        .password-toggle {
-            cursor: pointer;
-            color: #6c757d;
-        }
-
-        .spinner-border {
+        .download-options {
             display: none;
-            margin-right: 8px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="login-logo">
-                <i class="fas fa-eye"></i>
+    <div class="container">
+        <div class="app-header">
+            <h1 class="app-title">Extractor de Texto con Smart Vision</h1>
+            <p class="app-subtitle">Extrae texto de imágenes, tickets, facturas y documentos con inteligencia artificial</p>
+            
+            <div class="user-info">
+                <span class="user-welcome me-2" id="username-display">Usuario</span>
+                <button class="btn btn-sm btn-danger ms-2" id="logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
-            <h1 class="login-title">Smart Vision</h1>
-            <p class="login-subtitle">Extractor de Texto con Inteligencia Artificial</p>
         </div>
         
-        <div class="alert alert-danger" id="error-alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="error-message">Credenciales inválidas. Por favor, inténtalo de nuevo.</span>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-upload me-2"></i> Cargar Imagen
+                    </div>
+                    <div class="card-body">
+                        <form id="upload-form" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <div class="file-upload">
+                                    <label for="image" class="file-upload-label">
+                                        <div class="text-center">
+                                            <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                            <div class="file-upload-text">Arrastra una imagen o haz clic para seleccionar</div>
+                                            <div class="file-name" id="file-name"></div>
+                                        </div>
+                                    </label>
+                                    <input class="file-upload-input" type="file" id="image" name="image" accept="image/*">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="extract-button">
+                                <i class="fas fa-magic me-2"></i> Extraer Texto
+                            </button>
+                        </form>
+                        
+                        <div class="loading mt-4" id="loading">
+                            <div class="spinner-border text-primary spinner" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p>Procesando imagen con IA...</p>
+                        </div>
+                        
+                        <div class="preview-container mt-4" id="preview-container" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-eye me-2"></i> Vista previa</h5>
+                            <div id="image-preview-wrapper" style="text-align: center;">
+                                <!-- La imagen se insertará aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt me-2"></i> Texto Extraído
+                    </div>
+                    <div class="card-body">
+                        <div class="result-container" id="result-container">
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt empty-icon"></i>
+                                <p class="empty-text">El texto extraído de la imagen aparecerá aquí.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="download-options mt-3" id="download-options" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-download me-2"></i> Descargar Resultados</h5>
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-outline-primary" id="download-txt">
+                                    <i class="fas fa-file-alt me-2"></i> TXT
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="download-csv">
+                                    <i class="fas fa-file-csv me-2"></i> CSV
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="download-pdf">
+                                    <i class="fas fa-file-pdf me-2"></i> PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <form id="login-form">
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="fas fa-user"></i>
-                </span>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Usuario" required autofocus>
-            </div>
-            
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="fas fa-lock"></i>
-                </span>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
-                <span class="input-group-text password-toggle" onclick="togglePassword()">
-                    <i class="fas fa-eye" id="toggleIcon"></i>
-                </span>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" id="login-button">
-                <span class="spinner-border spinner-border-sm" id="login-spinner" role="status" aria-hidden="true"></span>
-                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
-            </button>
-        </form>
-        
-        <div class="login-footer">
+        <div class="footer">
             <p>Desarrollado con <i class="fas fa-heart" style="color: var(--warning-color);"></i> por Smart Vision Team</p>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // Verificar si el usuario ya está autenticado
         function checkAuth() {
             const token = localStorage.getItem('smartvision_token');
-            if (token) {
-                window.location.href = '/';
+            if (!token) {
+                window.location.href = '/login';
+                return false;
+            }
+            return true;
+        }
+        
+        function displayUsername() {
+            const usernameElement = document.getElementById('username-display');
+            if (usernameElement) {
+                const username = localStorage.getItem('smartvision_username') || 'Usuario';
+                usernameElement.textContent = username;
             }
         }
         
-        // Ejecutar al cargar la página
+        function setupLogout() {
+            document.getElementById('logout').addEventListener('click', function() {
+                localStorage.removeItem('smartvision_token');
+                localStorage.removeItem('smartvision_username');
+                window.location.href = '/login';
+            });
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
+            if (!checkAuth()) return;
             
-            const loginForm = document.getElementById('login-form');
-            const errorAlert = document.getElementById('error-alert');
-            const errorMessage = document.getElementById('error-message');
-            const loginButton = document.getElementById('login-button');
-            const loginSpinner = document.getElementById('login-spinner');
+            displayUsername();
+            setupLogout();
             
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+            const uploadForm = document.getElementById('upload-form');
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreviewWrapper = document.getElementById('image-preview-wrapper');
+            const resultContainer = document.getElementById('result-container');
+            const loadingIndicator = document.getElementById('loading');
+            const fileNameDisplay = document.getElementById('file-name');
+            const fileInput = document.getElementById('image');
+            const downloadOptions = document.getElementById('download-options');
+            
+            let extractionResults = [];
+            
+            // Función para mostrar la vista previa de la imagen
+            function displayImagePreview(file) {
+                if (!file) return;
                 
-                // Mostrar spinner y deshabilitar botón
-                loginButton.disabled = true;
-                loginSpinner.style.display = 'inline-block';
-                errorAlert.style.display = 'none';
+                console.log("Mostrando vista previa para:", file.name);
                 
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
+                // Obtener el contenedor de la vista previa
+                const imagePreviewWrapper = document.getElementById('image-preview-wrapper');
+                if (!imagePreviewWrapper) {
+                    console.error("No se encontró el contenedor de vista previa");
+                    return;
+                }
                 
-                // Realizar la solicitud de autenticación
-                fetch('/login', {
+                // Limpiar el contenedor
+                imagePreviewWrapper.innerHTML = '';
+                
+                // Crear un elemento de imagen simple
+                const img = document.createElement('img');
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '300px';
+                img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+                img.alt = 'Vista previa';
+                
+                // Usar FileReader para cargar la imagen
+                const reader = new FileReader();
+                
+                // Mostrar un indicador de carga mientras se procesa la imagen
+                imagePreviewWrapper.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>';
+                
+                reader.onload = function(e) {
+                    // Asignar la imagen cargada al elemento img
+                    img.src = e.target.result;
+                    
+                    // Limpiar el contenedor y añadir la imagen
+                    imagePreviewWrapper.innerHTML = '';
+                    imagePreviewWrapper.appendChild(img);
+                    
+                    // Mostrar el contenedor y actualizar el nombre del archivo
+                    const previewContainer = document.getElementById('preview-container');
+                    if (previewContainer) {
+                        previewContainer.style.display = 'block';
+                        previewContainer.classList.add('has-image');
+                    }
+                    
+                    const fileNameDisplay = document.getElementById('file-name');
+                    if (fileNameDisplay) {
+                        fileNameDisplay.textContent = file.name;
+                    }
+                };
+                
+                reader.onerror = function(error) {
+                    console.error('Error en FileReader:', error);
+                    imagePreviewWrapper.innerHTML = '<div class="alert alert-danger">Error al leer la imagen</div>';
+                };
+                
+                // Iniciar la lectura del archivo como Data URL
+                reader.readAsDataURL(file);
+            }
+            
+            // Manejar el cambio en el input de archivo
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    displayImagePreview(file);
+                }
+            });
+            
+            uploadForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(uploadForm);
+                if (!formData.get('image').name) {
+                    alert('Por favor, selecciona una imagen primero.');
+                    return;
+                }
+                
+                loadingIndicator.style.display = 'flex';
+                resultContainer.innerHTML = '<div class="empty-state"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="empty-text mt-3">Procesando...</p></div>';
+                
+                fetch('/extract-text', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Ocultar spinner
-                    loginSpinner.style.display = 'none';
+                    loadingIndicator.style.display = 'none';
                     
-                    if (data.success) {
-                        // Guardar token en localStorage
-                        localStorage.setItem('smartvision_token', 'authenticated');
-                        localStorage.setItem('smartvision_username', data.user.username);
-                        
-                        // Redirigir a la página principal
-                        window.location.href = '/';
+                    if (data.error) {
+                        resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${data.error}</div>`;
+                        downloadOptions.style.display = 'none';
+                        return;
+                    }
+                    
+                    if (data.status === 'succeeded' && data.results.length > 0) {
+                        extractionResults = data.results;
+                        let resultHtml = '';
+                        data.results.forEach(item => {
+                            const confidence = item.confidence * 100;
+                            const confidenceClass = confidence > 80 ? 'text-success' : confidence > 60 ? 'text-warning' : 'text-danger';
+                            
+                            resultHtml += `<div class="text-item">
+                                <p class="text-content">${item.text}</p>
+                                <p class="text-confidence ${confidenceClass}">
+                                    <i class="fas fa-check-circle me-1"></i> Confianza: ${confidence.toFixed(2)}%
+                                </p>
+                            </div>`;
+                        });
+                        resultContainer.innerHTML = resultHtml;
+                        downloadOptions.style.display = 'block';
                     } else {
-                        // Mostrar mensaje de error
-                        errorMessage.textContent = data.message;
-                        errorAlert.style.display = 'block';
-                        loginButton.disabled = false;
+                        resultContainer.innerHTML = `<div class="empty-state">
+                            <i class="fas fa-search empty-icon"></i>
+                            <p class="empty-text">No se pudo extraer texto de esta imagen.</p>
+                        </div>`;
                     }
                 })
                 .catch(error => {
-                    // Ocultar spinner
-                    loginSpinner.style.display = 'none';
-                    loginButton.disabled = false;
-                    
-                    // Mostrar mensaje de error
-                    errorMessage.textContent = 'Error de conexión. Por favor, inténtalo de nuevo.';
-                    errorAlert.style.display = 'block';
-                    console.error('Error:', error);
+                    loadingIndicator.style.display = 'none';
+                    resultContainer.innerHTML = `<div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Error: ${error.message}
+                    </div>`;
+                    downloadOptions.style.display = 'none';
                 });
             });
-        });
-        
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
+            document.getElementById('download-txt').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                const text = extractionResults.map(item => item.text).join('\n');
+                downloadFile(text, 'texto_extraido.txt', 'text/plain');
+            });
+            
+            document.getElementById('download-csv').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                let csv = 'Texto,Confianza\n';
+                extractionResults.forEach(item => {
+                    const escapedText = item.text.replace(/"/g, '""');
+                    csv += `"${escapedText}",${(item.confidence * 100).toFixed(2)}\n`;
+                });
+                
+                downloadFile(csv, 'texto_extraido.csv', 'text/csv');
+            });
+            
+            document.getElementById('download-pdf').addEventListener('click', function() {
+                if (extractionResults.length === 0) {
+                    alert('No hay texto para descargar');
+                    return;
+                }
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text('Texto Extraído con Smart Vision', 20, 20);
+                
+                doc.setFontSize(12);
+                let y = 30;
+                
+                extractionResults.forEach((item, index) => {
+                    if (y > 270) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    doc.text(`${index + 1}. ${item.text}`, 20, y);
+                    y += 7;
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`Confianza: ${(item.confidence * 100).toFixed(2)}%`, 25, y);
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    y += 10;
+                });
+                
+                const now = new Date();
+                const dateStr = now.toLocaleDateString();
+                const timeStr = now.toLocaleTimeString();
+                doc.setFontSize(10);
+                doc.text(`Generado el ${dateStr} a las ${timeStr}`, 20, 280);
+                
+                doc.save('texto_extraido.pdf');
+            });
+            
+            function downloadFile(content, fileName, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             }
-        }
+            
+            const dropArea = document.querySelector('.file-upload-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('bg-light');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('bg-light');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                // Mostrar la vista previa de la imagen directamente
+                if (files.length > 0) {
+                    displayImagePreview(files[0]);
+                }
+            }
+        });
     </script>
 </body>
 </html>

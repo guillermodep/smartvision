@@ -110,6 +110,7 @@
             border-radius: 8px;
             padding: 15px 20px;
             margin-bottom: 20px;
+            display: none;
         }
         
         .login-footer {
@@ -123,6 +124,11 @@
             cursor: pointer;
             color: #6c757d;
         }
+
+        .spinner-border {
+            display: none;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -135,14 +141,12 @@
             <p class="login-subtitle">Extractor de Texto con Inteligencia Artificial</p>
         </div>
         
-        {% if error %}
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" id="error-alert">
             <i class="fas fa-exclamation-circle me-2"></i>
-            {{ error }}
+            <span id="error-message">Credenciales inválidas. Por favor, inténtalo de nuevo.</span>
         </div>
-        {% endif %}
         
-        <form method="POST" action="{{ url_for('login') }}">
+        <form id="login-form">
             <div class="input-group">
                 <span class="input-group-text">
                     <i class="fas fa-user"></i>
@@ -160,7 +164,8 @@
                 </span>
             </div>
             
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="login-button">
+                <span class="spinner-border spinner-border-sm" id="login-spinner" role="status" aria-hidden="true"></span>
                 <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
             </button>
         </form>
@@ -172,6 +177,60 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Credenciales válidas (en una aplicación real, esto estaría en el servidor)
+        const VALID_USERNAME = "admin";
+        const VALID_PASSWORD = "smartsolutions";
+        
+        // Verificar si el usuario ya está autenticado
+        function checkAuth() {
+            const token = localStorage.getItem('smartvision_token');
+            if (token) {
+                window.location.href = '/';
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            const loginForm = document.getElementById('login-form');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+            const loginButton = document.getElementById('login-button');
+            const loginSpinner = document.getElementById('login-spinner');
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar spinner y deshabilitar botón
+                loginButton.disabled = true;
+                loginSpinner.style.display = 'inline-block';
+                errorAlert.style.display = 'none';
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // Simular un retraso de autenticación
+                setTimeout(() => {
+                    // Verificar credenciales
+                    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                        // Guardar token en localStorage
+                        localStorage.setItem('smartvision_token', 'authenticated');
+                        localStorage.setItem('smartvision_username', username);
+                        
+                        // Redirigir a la página principal
+                        window.location.href = '/';
+                    } else {
+                        // Mostrar mensaje de error
+                        errorMessage.textContent = 'Credenciales inválidas. Por favor, inténtalo de nuevo.';
+                        errorAlert.style.display = 'block';
+                        loginButton.disabled = false;
+                        loginSpinner.style.display = 'none';
+                    }
+                }, 1000);
+            });
+        });
+        
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');

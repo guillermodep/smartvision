@@ -16,7 +16,9 @@ load_dotenv()
 # Obtener la ruta del directorio actual
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-app = Flask(__name__, static_folder=current_dir, static_url_path='')
+app = Flask(__name__, 
+            static_folder=os.path.join(current_dir, 'static'),  # Carpeta de archivos estáticos
+            static_url_path='/static')         # URL path para archivos estáticos
 app.secret_key = os.urandom(24)  # Clave secreta para las sesiones
 
 # Configuración de Azure Computer Vision
@@ -145,19 +147,19 @@ def extract_text_from_image(image_bytes):
 @app.route('/login')
 def login():
     """Página de inicio de sesión"""
-    # Servir el archivo login.html desde la raíz del proyecto
+    # Servir el archivo login.html desde la carpeta static
     return app.send_static_file('login.html')
 
 @app.route('/logout')
 def logout():
     """Cerrar sesión"""
-    # No necesitamos manejar la sesión ya que la autenticación ahora es del lado del cliente
-    return redirect(url_for('login'))
+    # Redirigir a la página principal en lugar de login
+    return redirect(url_for('index'))
 
 @app.route('/')
 def index():
     """Página principal"""
-    # Servir el archivo index.html desde la raíz del proyecto
+    # Servir el archivo index.html desde la carpeta static
     return app.send_static_file('index.html')
 
 @app.route('/check-init')
