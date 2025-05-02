@@ -10,8 +10,8 @@
   autoLaunch = true
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  from = "/extract-text"
+  to = "/.netlify/functions/api"
   status = 200
 
 [[redirects]]
