@@ -1,5 +1,6 @@
 /extract-text  /.netlify/functions/api  200
 /check-init    /.netlify/functions/api  200
-/login         /.netlify/functions/auth  200
-/verify        /.netlify/functions/auth  200
+/.netlify/functions/auth/login  /.netlify/functions/auth  200
+/.netlify/functions/auth/verify  /.netlify/functions/auth  200
+/netlify-login.html  /netlify-login.html  200
 /*  /index.html  200

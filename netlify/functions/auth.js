@@ -14,9 +14,11 @@ const VALID_PASSWORD = "smartsolutions";
 
 // Endpoint para verificar las credenciales
 app.post('/login', (req, res) => {
+  console.log("Recibida solicitud de login:", req.body);
   const { username, password } = req.body;
   
   if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    console.log("Autenticación exitosa para:", username);
     res.json({
       success: true,
       message: 'Autenticación exitosa',
@@ -25,6 +27,7 @@ app.post('/login', (req, res) => {
       }
     });
   } else {
+    console.log("Autenticación fallida para:", username);
     res.status(401).json({
       success: false,
       message: 'Credenciales inválidas. Por favor, inténtalo de nuevo.'
@@ -49,6 +52,13 @@ app.post('/verify', (req, res) => {
       message: 'Token inválido o expirado'
     });
   }
+});
+
+// Ruta por defecto para pruebas
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Servicio de autenticación funcionando correctamente'
+  });
 });
 
 // Exportar la aplicación envuelta en serverless
