@@ -1,10 +1,10 @@
 [build]
-  command = "npm install"
+  command = "echo 'No build command needed for static HTML'"
   publish = "."
   functions = "netlify/functions"
 
 [dev]
-  command = "npm start"
+  command = "echo 'Starting development server'"
   port = 8888
   publish = "."
   autoLaunch = true

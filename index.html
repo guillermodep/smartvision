@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Texto con Smart Vision</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #4361ee;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            padding-top: 30px;
+            padding-bottom: 50px;
+        }
+        
+        .container {
+            max-width: 1140px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        
+        .app-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .app-subtitle {
+            color: var(--secondary-color);
+            font-weight: 300;
+            margin-bottom: 0;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .user-welcome {
+            color: var(--secondary-color);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .preview-container {
+            max-width: 100%;
+            max-height: 400px;
+            overflow: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px dashed #dee2e6;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-container.has-image {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        
+        .result-container {
+            max-height: 400px;
+            overflow: auto;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .alert {
+            border-radius: 8px;
+            padding: 15px 20px;
+        }
+        
+        .text-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .text-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-content {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .text-confidence {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #e9ecef;
+            border-color: var(--primary-color);
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .file-upload-text {
+            font-size: 16px;
+            color: #6c757d;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            color: #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <h1 class="app-title">Extractor de Texto con Smart Vision</h1>
+            <p class="app-subtitle">Extrae texto de imágenes, tickets, facturas y documentos con inteligencia artificial</p>
+            
+            <div class="user-info">
+                <span class="user-welcome">Bienvenido, <strong id="username-display">admin</strong></span>
+                <button id="logout-button" class="btn btn-sm btn-outline-danger ms-3">
+                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
+                </button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-upload me-2"></i> Cargar Imagen
+                    </div>
+                    <div class="card-body">
+                        <form id="upload-form" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <div class="file-upload">
+                                    <label for="image" class="file-upload-label">
+                                        <div class="text-center">
+                                            <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                            <div class="file-upload-text">Arrastra una imagen o haz clic para seleccionar</div>
+                                            <div class="file-name" id="file-name"></div>
+                                        </div>
+                                    </label>
+                                    <input class="file-upload-input" type="file" id="image" name="image" accept="image/*">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="extract-button">
+                                <i class="fas fa-magic me-2"></i> Extraer Texto
+                            </button>
+                        </form>
+                        
+                        <div class="loading mt-4" id="loading">
+                            <div class="spinner-border text-primary spinner" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p>Procesando imagen con IA...</p>
+                        </div>
+                        
+                        <div class="preview-container mt-4" id="preview-container" style="display: none;">
+                            <h5 class="mb-3"><i class="fas fa-eye me-2"></i> Vista previa</h5>
+                            <img id="preview-image" class="preview-image" src="" alt="Vista previa de la imagen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt me-2"></i> Texto Extraído
+                    </div>
+                    <div class="card-body">
+                        <div class="result-container" id="result-container">
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt empty-icon"></i>
+                                <p class="empty-text">El texto extraído de la imagen aparecerá aquí.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Desarrollado con <i class="fas fa-heart" style="color: var(--warning-color);"></i> por Smart Vision Team</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar autenticación
+        function checkAuth() {
+            const token = localStorage.getItem('smartvision_token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        }
+        
+        // Mostrar el nombre de usuario
+        function displayUsername() {
+            const username = localStorage.getItem('smartvision_username') || 'Usuario';
+            document.getElementById('username-display').textContent = username;
+        }
+        
+        // Configurar el cierre de sesión
+        function setupLogout() {
+            document.getElementById('logout-button').addEventListener('click', function() {
+                localStorage.removeItem('smartvision_token');
+                localStorage.removeItem('smartvision_username');
+                window.location.href = '/login.html';
+            });
+        }
+        
+        // Datos de ejemplo para simular la extracción de texto
+        const sampleResults = [
+            {
+                text: "JUCAY",
+                confidence: 0.95
+            },
+            {
+                text: "RESJUCAY CIA. LTDA.",
+                confidence: 0.92
+            },
+            {
+                text: "RUC: 1792996015001",
+                confidence: 0.98
+            },
+            {
+                text: "AMAZONAS N33B-147 Y ARIZAGA",
+                confidence: 0.94
+            },
+            {
+                text: "Teléfono: 2244177",
+                confidence: 0.93
+            },
+            {
+                text: "CONTRIBUYENTE REGIMEN MICROEMPRESAS",
+                confidence: 0.91
+            },
+            {
+                text: "CLAVE DE ACCESO",
+                confidence: 0.97
+            },
+            {
+                text: "30042025011792996015001200100100005862912345678",
+                confidence: 0.89
+            },
+            {
+                text: "COMPROBANTE DE FACTURA:001-001-000058629",
+                confidence: 0.96
+            },
+            {
+                text: "MESERO: ERIKA       MESA: 14",
+                confidence: 0.93
+            },
+            {
+                text: "FECHA: 30/4/2025    HORA: 13:57:42",
+                confidence: 0.95
+            },
+            {
+                text: "CLIENTE: JOSE MIGUEL GRANDA",
+                confidence: 0.94
+            }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticación
+            if (!checkAuth()) return;
+            
+            // Mostrar nombre de usuario y configurar cierre de sesión
+            displayUsername();
+            setupLogout();
+            
+            const uploadForm = document.getElementById('upload-form');
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('preview-image');
+            const resultContainer = document.getElementById('result-container');
+            const loadingIndicator = document.getElementById('loading');
+            const fileNameDisplay = document.getElementById('file-name');
+            const fileInput = document.getElementById('image');
+            
+            // Manejar la vista previa de la imagen
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                        previewContainer.classList.add('has-image');
+                        fileNameDisplay.textContent = file.name;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Manejar el envío del formulario de carga de imagen
+            uploadForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(uploadForm);
+                if (!formData.get('image').name) {
+                    alert('Por favor, selecciona una imagen primero.');
+                    return;
+                }
+                
+                loadingIndicator.style.display = 'flex';
+                resultContainer.innerHTML = '<div class="empty-state"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="empty-text mt-3">Procesando...</p></div>';
+                
+                // Simular procesamiento (en una aplicación real, aquí se llamaría a la API)
+                setTimeout(() => {
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Mostrar resultados de ejemplo
+                    let resultHtml = '';
+                    sampleResults.forEach(item => {
+                        const confidence = item.confidence * 100;
+                        const confidenceClass = confidence > 80 ? 'text-success' : confidence > 60 ? 'text-warning' : 'text-danger';
+                        
+                        resultHtml += `<div class="text-item">
+                            <p class="text-content">${item.text}</p>
+                            <p class="text-confidence ${confidenceClass}">
+                                <i class="fas fa-check-circle me-1"></i> Confianza: ${confidence.toFixed(2)}%
+                            </p>
+                        </div>`;
+                    });
+                    resultContainer.innerHTML = resultHtml;
+                }, 2000);
+            });
+            
+            // Permitir arrastrar y soltar archivos
+            const dropArea = document.querySelector('.file-upload-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('bg-light');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('bg-light');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                // Disparar el evento change manualmente
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+    </script>
+</body>
+</html>

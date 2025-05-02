@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Smart Vision</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #4361ee;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            color: var(--secondary-color);
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        
+        .login-logo {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .input-group-text {
+            background-color: var(--light-color);
+            border-radius: 8px 0 0 8px;
+            border: 1px solid #ced4da;
+            border-right: none;
+        }
+        
+        .input-group .form-control {
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 0;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .alert {
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .password-toggle {
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .spinner-border {
+            display: none;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h1 class="login-title">Smart Vision</h1>
+            <p class="login-subtitle">Extractor de Texto con Inteligencia Artificial</p>
+        </div>
+        
+        <div class="alert alert-danger" id="error-alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="error-message">Credenciales inválidas. Por favor, inténtalo de nuevo.</span>
+        </div>
+        
+        <form id="login-form">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                </span>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Usuario" required autofocus>
+            </div>
+            
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+                <span class="input-group-text password-toggle" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="toggleIcon"></i>
+                </span>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="login-button">
+                <span class="spinner-border spinner-border-sm" id="login-spinner" role="status" aria-hidden="true"></span>
+                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <p>Desarrollado con <i class="fas fa-heart" style="color: var(--warning-color);"></i> por Smart Vision Team</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Credenciales válidas (en una aplicación real, esto estaría en el servidor)
+        const VALID_USERNAME = "admin";
+        const VALID_PASSWORD = "smartsolutions";
+        
+        // Verificar si el usuario ya está autenticado
+        function checkAuth() {
+            const token = localStorage.getItem('smartvision_token');
+            if (token) {
+                window.location.href = '/index.html';
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            const loginForm = document.getElementById('login-form');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+            const loginButton = document.getElementById('login-button');
+            const loginSpinner = document.getElementById('login-spinner');
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar spinner y deshabilitar botón
+                loginButton.disabled = true;
+                loginSpinner.style.display = 'inline-block';
+                errorAlert.style.display = 'none';
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // Simular un retraso de autenticación
+                setTimeout(() => {
+                    // Verificar credenciales
+                    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                        // Guardar token en localStorage
+                        localStorage.setItem('smartvision_token', 'authenticated');
+                        localStorage.setItem('smartvision_username', username);
+                        
+                        // Redirigir a la página principal
+                        window.location.href = '/index.html';
+                    } else {
+                        // Mostrar mensaje de error
+                        errorMessage.textContent = 'Credenciales inválidas. Por favor, inténtalo de nuevo.';
+                        errorAlert.style.display = 'block';
+                        loginButton.disabled = false;
+                        loginSpinner.style.display = 'none';
+                    }
+                }, 1000);
+            });
+        });
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>
