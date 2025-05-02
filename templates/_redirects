@@ -1,2 +1,3 @@
 /extract-text  /.netlify/functions/api  200
+/check-init    /.netlify/functions/api  200
 /*  /index.html  200

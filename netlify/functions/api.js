@@ -5,6 +5,14 @@ const cors = require('cors');
 const multer = require('multer');
 const app = express();
 
+// Acceder a las variables de entorno de Netlify
+const ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT;
+const KEY = process.env.AZURE_COMPUTER_VISION_KEY;
+const API_VERSION = process.env.AZURE_COMPUTER_VISION_API_VERSION;
+
+// Verificar si las credenciales están configuradas
+const credentialsConfigured = ENDPOINT && KEY;
+
 // Configurar CORS
 app.use(cors());
 
@@ -12,8 +20,24 @@ app.use(cors());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+// Endpoint para verificar el estado de inicialización
+app.get('/check-init', (req, res) => {
+  res.json({ 
+    initialized: credentialsConfigured,
+    endpoint: ENDPOINT ? ENDPOINT.substring(0, 10) + '...' : 'No configurado',
+    key: KEY ? KEY.substring(0, 5) + '...' : 'No configurado'
+  });
+});
+
 // Endpoint para extraer texto de imágenes
 app.post('/extract-text', upload.single('image'), (req, res) => {
+  // Verificar si las credenciales están configuradas
+  if (!credentialsConfigured) {
+    return res.status(400).json({
+      error: "El cliente de Smart Vision no está inicializado. Por favor, verifica que las credenciales estén correctamente configuradas."
+    });
+  }
+  
   // En un entorno real, aquí se conectaría con la API de Azure
   // Para el despliegue en Netlify, devolvemos una respuesta simulada
   
@@ -78,7 +102,10 @@ app.post('/extract-text', upload.single('image'), (req, res) => {
 
 // Ruta por defecto
 app.get('/', (req, res) => {
-  res.json({ message: 'API de Smart Vision funcionando correctamente' });
+  res.json({ 
+    message: 'API de Smart Vision funcionando correctamente',
+    initialized: credentialsConfigured 
+  });
 });
 
 // Exportar la aplicación envuelta en serverless
