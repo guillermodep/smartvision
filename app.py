@@ -175,10 +175,10 @@ def check_init():
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
     """Endpoint para extraer texto de una imagen"""
-    if 'image' not in request.files:
+    if 'file' not in request.files:
         return jsonify({"error": "No se ha subido ninguna imagen"}), 400
     
-    image_file = request.files['image']
+    image_file = request.files['file']
     if image_file.filename == '':
         return jsonify({"error": "Nombre de archivo vacío"}), 400
     

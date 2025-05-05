@@ -6,9 +6,13 @@
     <title>Extractor de Texto con Smart Vision</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap">
     <style>
         :root {
+            /* Colores base */
             --primary-color: #4361ee;
+            --primary-light: #5a75f0;
+            --primary-dark: #3a55d9;
             --secondary-color: #3f37c9;
             --accent-color: #4895ef;
             --light-color: #f8f9fa;
@@ -16,30 +20,84 @@
             --success-color: #4cc9f0;
             --warning-color: #f72585;
             --info-color: #4361ee;
+            --danger-color: #e63946;
+            
+            /* RGB versions for transparency */
+            --primary-color-rgb: 67, 97, 238;
+            --secondary-color-rgb: 63, 55, 201;
+            --bg-card-rgb: 255, 255, 255;
+            
+            /* Gradientes */
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            --gradient-secondary: linear-gradient(135deg, var(--secondary-color), var(--primary-dark));
+            --gradient-success: linear-gradient(135deg, var(--success-color), #56cfe1);
+            --gradient-warning: linear-gradient(135deg, var(--warning-color), #ff758f);
+            
+            /* Variables para modo oscuro/claro */
+            --bg-main: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-main: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modo oscuro */
+        [data-theme="dark"] {
+            --bg-main: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --border-color: #2d2d2d;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-card-rgb: 30, 30, 30;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: var(--dark-color);
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: var(--text-main);
             padding-top: 30px;
             padding-bottom: 50px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
         }
         
         .container {
             max-width: 1140px;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.85);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px var(--shadow-color);
             padding: 30px;
             margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        [data-theme="dark"] .container {
+            background-color: rgba(30, 30, 30, 0.85);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .app-header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
             position: relative;
         }
         
@@ -71,14 +129,14 @@
         .card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px var(--shadow-color);
             margin-bottom: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px var(--shadow-color);
         }
         
         .card-header {
@@ -107,31 +165,129 @@
         
         .preview-container.has-image {
             border: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px var(--shadow-color);
         }
         
         .result-container {
-            max-height: 400px;
+            max-height: 500px;
             overflow: auto;
-            border-radius: 8px;
-            padding: 0;
+            border-radius: 12px;
+            padding: 15px;
             margin-bottom: 20px;
-            background-color: #f8f9fa;
+            background-color: var(--bg-card);
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .text-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .text-item {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transform: translateZ(0);
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .text-item:hover {
+            transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 15px 30px var(--shadow-color);
+        }
+
+        .text-item.show {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .text-content {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .text-confidence {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .confidence-level {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--gradient-primary);
+            transition: width 0.5s ease;
+        }
+
+        .high-confidence {
+            background: var(--gradient-success);
+        }
+
+        .medium-confidence {
+            background: linear-gradient(135deg, #ffd166, #ffaa33);
+        }
+
+        .low-confidence {
+            background: var(--gradient-warning);
         }
         
-        .loading {
+        .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px;
-            display: none;
+            color: var(--text-secondary);
         }
         
-        .spinner {
-            width: 50px;
-            height: 50px;
+        .empty-icon {
+            font-size: 48px;
+            color: var(--border-color);
             margin-bottom: 15px;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
         
         .btn-primary {
@@ -202,65 +358,67 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 30px;
-            background-color: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            border-radius: 8px;
+            padding: 40px;
+            background-color: rgba(var(--bg-card-rgb), 0.5);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
         }
-        
-        .file-upload-label:hover {
-            background-color: #e9ecef;
-            border-color: var(--primary-color);
-        }
-        
-        .file-upload-icon {
-            font-size: 48px;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-        
-        .file-upload-text {
-            font-size: 16px;
-            color: #6c757d;
-        }
-        
-        .file-upload-input {
+
+        .file-upload-label::before {
+            content: '';
             position: absolute;
-            left: 0;
             top: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0;
-            cursor: pointer;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(var(--primary-color-rgb), 0.05), transparent);
+            background-size: 200% 200%;
+            animation: shine 3s infinite linear;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        
-        .file-name {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #6c757d;
+
+        .file-upload-label:hover::before {
+            opacity: 1;
         }
-        
-        .empty-state {
+
+        @keyframes shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .file-upload-label.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(var(--primary-color-rgb), 0.05);
+            transform: scale(1.02);
+        }
+
+        .file-upload-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-        
-        .empty-icon {
-            font-size: 48px;
-            color: #dee2e6;
-            margin-bottom: 15px;
-        }
-        
-        .empty-text {
-            font-size: 16px;
             text-align: center;
+            z-index: 1;
+        }
+
+        .file-upload-icon {
+            font-size: 64px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover .file-upload-icon {
+            transform: translateY(-5px);
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
         }
         
         .footer {
@@ -275,9 +433,246 @@
         .download-options {
             display: none;
         }
+        
+        /* Skeletons para carga de datos */
+        @keyframes pulse-bg {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--border-color) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: pulse-bg 1.5s infinite;
+            border-radius: 8px;
+            height: 20px;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-text {
+            height: 20px;
+            width: 100%;
+        }
+
+        .skeleton-text:last-child {
+            width: 80%;
+        }
+
+        .skeleton-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            margin-bottom: 15px;
+        }
+
+        .skeleton-confidence {
+            height: 10px;
+            width: 60%;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            color: var(--primary-color);
+            animation: pulse-spinner 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes pulse-spinner {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        
+        /* Estilos para el selector de tema oscuro/claro */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5px;
+        }
+
+        .slider .fa-sun {
+            color: #f1c40f;
+            font-size: 14px;
+        }
+
+        .slider .fa-moon {
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            z-index: 1;
+        }
+
+        input:checked + .slider {
+            background-color: #2c3e50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* Estilos para las notificaciones */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .toast {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .toast-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .toast-content {
+            flex-grow: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .toast-message {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .toast.success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        
+        .toast.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        .fade-out {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        /* Estrellas CSS */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+            transition: transform 0.3s ease;
+        }
+        
+        .star.blue {
+            background-color: #4361ee;
+        }
+        
+        .star.pink {
+            background-color: #f72585;
+        }
+        
+        .star.cyan {
+            background-color: #4cc9f0;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        /* Líneas de conexión entre estrellas */
+        .constellation-line {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform-origin: 0 0;
+            z-index: -1;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <div class="stars">
+        <!-- Las estrellas se generarán con JavaScript -->
+    </div>
+
     <div class="container">
         <div class="app-header">
             <h1 class="app-title">Extractor de Texto con Smart Vision</h1>
@@ -285,6 +680,15 @@
             
             <div class="user-info">
                 <span class="user-welcome me-2" id="username-display">Usuario</span>
+                <div class="theme-switch-wrapper me-3">
+                    <label class="theme-switch" for="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" />
+                        <div class="slider round">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </div>
+                    </label>
+                </div>
                 <button class="btn btn-sm btn-danger ms-2" id="logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
@@ -299,17 +703,21 @@
                     </div>
                     <div class="card-body">
                         <form id="upload-form" enctype="multipart/form-data">
-                            <div class="mb-4">
-                                <div class="file-upload">
-                                    <label for="image" class="file-upload-label">
-                                        <div class="text-center">
-                                            <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
-                                            <div class="file-upload-text">Arrastra una imagen o haz clic para seleccionar</div>
-                                            <div class="file-name" id="file-name"></div>
+                            <div class="file-upload">
+                                <label class="file-upload-label" for="file-input" id="drop-area">
+                                    <div class="file-upload-content">
+                                        <div class="file-upload-icon">
+                                            <i class="fas fa-cloud-upload-alt"></i>
                                         </div>
-                                    </label>
-                                    <input class="file-upload-input" type="file" id="image" name="image" accept="image/*">
-                                </div>
+                                        <div class="file-upload-text">
+                                            <p class="mb-1">Arrastra y suelta una imagen aquí</p>
+                                            <p class="small text-muted mb-0">o haz clic para seleccionar un archivo</p>
+                                            <p class="small text-muted mt-2">Formatos soportados: JPG, PNG, JPEG, BMP, TIFF</p>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="file-input" class="file-upload-input" accept="image/*" name="file">
+                                </label>
+                                <div class="file-name mt-2" id="file-name"></div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100" id="extract-button">
                                 <i class="fas fa-magic me-2"></i> Extraer Texto
@@ -320,7 +728,6 @@
                             <div class="spinner-border text-primary spinner" role="status">
                                 <span class="visually-hidden">Cargando...</span>
                             </div>
-                            <p>Procesando imagen con IA...</p>
                         </div>
                         
                         <div class="preview-container mt-4" id="preview-container" style="display: none;">
@@ -336,14 +743,24 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-file-alt me-2"></i> Texto Extraído
+                        <i class="fas fa-file-alt me-2"></i> Resultados
                     </div>
                     <div class="card-body">
                         <div class="result-container" id="result-container">
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt empty-icon"></i>
-                                <p class="empty-text">El texto extraído de la imagen aparecerá aquí.</p>
+                            <div class="empty-state" id="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="empty-text">
+                                    Los resultados de la extracción de texto aparecerán aquí
+                                </div>
                             </div>
+                            <div class="loading" id="loading">
+                                <div class="spinner-border text-primary spinner" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                            </div>
+                            <div id="text-results" class="text-results"></div>
                         </div>
                         
                         <div class="download-options mt-3" id="download-options" style="display: none;">
@@ -383,19 +800,211 @@
         }
         
         function displayUsername() {
-            const usernameElement = document.getElementById('username-display');
-            if (usernameElement) {
-                const username = localStorage.getItem('smartvision_username') || 'Usuario';
-                usernameElement.textContent = username;
+            const token = localStorage.getItem('smartvision_token');
+            if (token) {
+                const username = atob(token).split(':')[0];
+                document.getElementById('username-display').textContent = username;
             }
         }
         
         function setupLogout() {
             document.getElementById('logout').addEventListener('click', function() {
                 localStorage.removeItem('smartvision_token');
-                localStorage.removeItem('smartvision_username');
                 window.location.href = '/login';
             });
+        }
+        
+        // Función para cambiar entre modo claro y oscuro
+        function setupThemeToggle() {
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Verificar si hay un tema guardado en localStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.checked = true;
+            }
+            
+            // Manejar cambio de tema
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+        
+        // Generar estrellas con JavaScript y añadir interactividad
+        function setupStarBackground() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 200; // Número de estrellas
+            const stars = []; // Array para almacenar referencias a las estrellas
+            const constellationDistance = 150; // Distancia máxima para conectar estrellas
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            // Colores de las estrellas
+            const colors = ['', 'blue', 'pink', 'cyan']; // '' para blanco (default)
+            
+            // Crear estrellas
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Asignar color aleatorio
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                if (colorClass) {
+                    star.classList.add(colorClass);
+                }
+                
+                // Posición aleatoria
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Retraso aleatorio en la animación
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                
+                // Añadir al contenedor
+                starsContainer.appendChild(star);
+                
+                // Guardar referencia y posición
+                stars.push({
+                    element: star,
+                    x: x,
+                    y: y,
+                    size: size,
+                    connections: []
+                });
+            }
+            
+            // Crear conexiones entre estrellas cercanas (efecto constelación)
+            function createConstellations() {
+                // Primero eliminar líneas existentes
+                document.querySelectorAll('.constellation-line').forEach(line => line.remove());
+                
+                for (let i = 0; i < stars.length; i++) {
+                    stars[i].connections = [];
+                    for (let j = i + 1; j < stars.length; j++) {
+                        // Calcular distancia entre estrellas
+                        const dx = (stars[i].x - stars[j].x) * window.innerWidth / 100;
+                        const dy = (stars[i].y - stars[j].y) * window.innerHeight / 100;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Si están lo suficientemente cerca, crear una línea
+                        if (distance < constellationDistance) {
+                            const line = document.createElement('div');
+                            line.classList.add('constellation-line');
+                            
+                            // Posicionar y dimensionar la línea
+                            const x1 = stars[i].x * window.innerWidth / 100;
+                            const y1 = stars[i].y * window.innerHeight / 100;
+                            const x2 = stars[j].x * window.innerWidth / 100;
+                            const y2 = stars[j].y * window.innerHeight / 100;
+                            
+                            // Calcular longitud y ángulo de la línea
+                            const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+                            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                            
+                            // Aplicar estilos
+                            line.style.width = `${length}px`;
+                            line.style.height = '1px';
+                            line.style.left = `${x1}px`;
+                            line.style.top = `${y1}px`;
+                            line.style.transform = `rotate(${angle}deg)`;
+                            
+                            // Añadir al DOM
+                            starsContainer.appendChild(line);
+                            
+                            // Guardar referencia
+                            stars[i].connections.push(j);
+                        }
+                    }
+                }
+            }
+            
+            // Crear constelaciones iniciales
+            createConstellations();
+            
+            // Recrear constelaciones al cambiar tamaño de ventana
+            window.addEventListener('resize', createConstellations);
+            
+            // Interactividad con el ratón
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Mover estrellas ligeramente hacia el cursor
+                stars.forEach(star => {
+                    const starX = star.x * window.innerWidth / 100;
+                    const starY = star.y * window.innerHeight / 100;
+                    
+                    // Calcular distancia al cursor
+                    const dx = mouseX - starX;
+                    const dy = mouseY - starY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Si está cerca del cursor, mover ligeramente
+                    if (distance < 200) {
+                        const moveX = dx * 0.02;
+                        const moveY = dy * 0.02;
+                        star.element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    } else {
+                        star.element.style.transform = 'translate(0, 0)';
+                    }
+                });
+            });
+        }
+        
+        // Función para mostrar notificaciones
+        function showToast(type, title, message) {
+            // Crear contenedor de toasts si no existe
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Crear toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // Determinar icono según tipo
+            let iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-check-circle';
+            if (type === 'error') iconClass = 'fa-exclamation-circle';
+            
+            // Contenido del toast
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            // Añadir al contenedor
+            toastContainer.appendChild(toast);
+            
+            // Eliminar después de 3.5 segundos
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3500);
         }
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -403,6 +1012,8 @@
             
             displayUsername();
             setupLogout();
+            setupThemeToggle();
+            setupStarBackground();
             
             const uploadForm = document.getElementById('upload-form');
             const previewContainer = document.getElementById('preview-container');
@@ -410,7 +1021,7 @@
             const resultContainer = document.getElementById('result-container');
             const loadingIndicator = document.getElementById('loading');
             const fileNameDisplay = document.getElementById('file-name');
-            const fileInput = document.getElementById('image');
+            const fileInput = document.getElementById('file-input');
             const downloadOptions = document.getElementById('download-options');
             
             let extractionResults = [];
@@ -483,17 +1094,40 @@
                 }
             });
             
+            // Función para mostrar skeletons durante la carga
+            function showLoadingSkeletons() {
+                const resultsContainer = document.getElementById('text-results');
+                resultsContainer.innerHTML = '';
+                document.getElementById('empty-state').style.display = 'none';
+                
+                // Crear 4 skeleton cards
+                for (let i = 0; i < 4; i++) {
+                    const skeletonCard = document.createElement('div');
+                    skeletonCard.className = 'skeleton-card';
+                    
+                    skeletonCard.innerHTML = `
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-confidence"></div>
+                    `;
+                    
+                    resultsContainer.appendChild(skeletonCard);
+                }
+            }
+            
             uploadForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 
                 const formData = new FormData(uploadForm);
-                if (!formData.get('image').name) {
+                if (!formData.get('file').name) {
                     alert('Por favor, selecciona una imagen primero.');
                     return;
                 }
                 
+                // Mostrar indicador de carga
                 loadingIndicator.style.display = 'flex';
-                resultContainer.innerHTML = '<div class="empty-state"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="empty-text mt-3">Procesando...</p></div>';
+                showLoadingSkeletons();
                 
                 fetch('/extract-text', {
                     method: 'POST',
@@ -511,19 +1145,7 @@
                     
                     if (data.status === 'succeeded' && data.results.length > 0) {
                         extractionResults = data.results;
-                        let resultHtml = '';
-                        data.results.forEach(item => {
-                            const confidence = item.confidence * 100;
-                            const confidenceClass = confidence > 80 ? 'text-success' : confidence > 60 ? 'text-warning' : 'text-danger';
-                            
-                            resultHtml += `<div class="text-item">
-                                <p class="text-content">${item.text}</p>
-                                <p class="text-confidence ${confidenceClass}">
-                                    <i class="fas fa-check-circle me-1"></i> Confianza: ${confidence.toFixed(2)}%
-                                </p>
-                            </div>`;
-                        });
-                        resultContainer.innerHTML = resultHtml;
+                        displayResults(data.results);
                         downloadOptions.style.display = 'block';
                     } else {
                         resultContainer.innerHTML = `<div class="empty-state">
@@ -541,6 +1163,54 @@
                     downloadOptions.style.display = 'none';
                 });
             });
+            
+            // Función para mostrar los resultados de la extracción
+            function displayResults(results) {
+                const resultsContainer = document.getElementById('text-results');
+                resultsContainer.innerHTML = '';
+                
+                if (results.length === 0) {
+                    document.getElementById('empty-state').style.display = 'flex';
+                    return;
+                }
+                
+                document.getElementById('empty-state').style.display = 'none';
+                
+                results.forEach((item, index) => {
+                    const confidence = parseFloat(item.confidence) || 0;
+                    let confidenceClass = 'low-confidence';
+                    
+                    if (confidence >= 0.8) {
+                        confidenceClass = 'high-confidence';
+                    } else if (confidence >= 0.5) {
+                        confidenceClass = 'medium-confidence';
+                    }
+                    
+                    const textItem = document.createElement('div');
+                    textItem.className = 'text-item';
+                    textItem.style.animationDelay = `${index * 0.1}s`;
+                    
+                    textItem.innerHTML = `
+                        <div class="text-content">${item.text}</div>
+                        <div class="text-confidence">
+                            <span>Confianza: ${(confidence * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-level ${confidenceClass}" style="width: ${confidence * 100}%"></div>
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(textItem);
+                    
+                    // Añadir animación de entrada
+                    setTimeout(() => {
+                        textItem.classList.add('show');
+                    }, index * 100);
+                });
+                
+                // Mostrar notificación de éxito
+                showToast('success', 'Texto extraído', `Se han extraído ${results.length} fragmentos de texto de la imagen.`);
+            }
             
             document.getElementById('download-txt').addEventListener('click', function() {
                 if (extractionResults.length === 0) {
@@ -639,11 +1309,11 @@
             });
             
             function highlight() {
-                dropArea.classList.add('bg-light');
+                dropArea.classList.add('highlight');
             }
             
             function unhighlight() {
-                dropArea.classList.remove('bg-light');
+                dropArea.classList.remove('highlight');
             }
             
             dropArea.addEventListener('drop', handleDrop, false);
