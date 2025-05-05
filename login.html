@@ -29,13 +29,42 @@
             position: relative;
         }
         
-        #particles-container {
-            position: absolute;
+        /* Estrellas CSS */
+        .stars {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+        
+        .star.blue {
+            background-color: #4361ee;
+        }
+        
+        .star.pink {
+            background-color: #f72585;
+        }
+        
+        .star.cyan {
+            background-color: #4cc9f0;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
         }
         
         .login-wrapper {
@@ -153,7 +182,9 @@
     </style>
 </head>
 <body>
-    <div id="particles-container"></div>
+    <div class="stars">
+        <!-- Las estrellas se generarán con JavaScript -->
+    </div>
     
     <div class="login-wrapper">
         <div class="login-container">
@@ -201,98 +232,44 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/@tsparticles/react@3.0.0/tsparticles.react.min.js"></script>
-    <script src="https://unpkg.com/@tsparticles/slim@3.0.0/tsparticles.slim.min.js"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.min.js"></script>
+    
     <script>
-        // Inicializar partículas
-        window.addEventListener('DOMContentLoaded', async () => {
-            await tsParticles.load("particles-container", {
-                background: {
-                    color: {
-                        value: "#000000",
-                    },
-                },
-                fpsLimit: 120,
-                interactivity: {
-                    events: {
-                        onClick: {
-                            enable: true,
-                            mode: "push",
-                        },
-                        onHover: {
-                            enable: false,
-                            mode: "repulse",
-                        },
-                        resize: true,
-                    },
-                    modes: {
-                        push: {
-                            quantity: 4,
-                        },
-                        repulse: {
-                            distance: 200,
-                            duration: 0.4,
-                        },
-                    },
-                },
-                particles: {
-                    color: {
-                        value: "#ffffff",
-                    },
-                    move: {
-                        direction: "none",
-                        enable: true,
-                        outModes: {
-                            default: "out",
-                        },
-                        random: false,
-                        speed: {
-                            min: 0.1,
-                            max: 0.5,
-                        },
-                        straight: false,
-                    },
-                    number: {
-                        density: {
-                            enable: true,
-                            area: 800,
-                        },
-                        value: 100,
-                    },
-                    opacity: {
-                        value: {
-                            min: 0.1,
-                            max: 1,
-                        },
-                        animation: {
-                            enable: true,
-                            speed: 1,
-                            decay: 0,
-                            sync: false,
-                            mode: "auto",
-                            startValue: "random",
-                            destroy: "none",
-                        },
-                    },
-                    shape: {
-                        type: "circle",
-                    },
-                    size: {
-                        value: {
-                            min: 1,
-                            max: 3,
-                        },
-                    },
-                },
-                detectRetina: true,
-            });
+        // Generar estrellas con JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 200; // Número de estrellas
+            
+            // Colores de las estrellas
+            const colors = ['', 'blue', 'pink', 'cyan']; // '' para blanco (default)
+            
+            // Crear estrellas
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Asignar color aleatorio
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                if (colorClass) {
+                    star.classList.add(colorClass);
+                }
+                
+                // Posición aleatoria
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Retraso aleatorio en la animación
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                
+                // Añadir al contenedor
+                starsContainer.appendChild(star);
+            }
         });
 
-        // Credenciales válidas (en una aplicación real, esto estaría en el servidor)
-        const VALID_USERNAME = "admin";
-        const VALID_PASSWORD = "smartsolutions";
-        
         // Verificar si el usuario ya está autenticado
         function checkAuth() {
             const token = localStorage.getItem('smartvision_token');
@@ -331,7 +308,7 @@
                         // Redirigir a la página principal
                         window.location.href = '/';
                     } else {
-                        // Mostrar error
+                        // Mostrar mensaje de error
                         errorMessage.textContent = 'Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.';
                         errorAlert.style.display = 'block';
                         
@@ -357,6 +334,10 @@
                 toggleIcon.classList.add('fa-eye');
             }
         }
+        
+        // Credenciales válidas (en una aplicación real, esto estaría en el servidor)
+        const VALID_USERNAME = "admin";
+        const VALID_PASSWORD = "smartsolutions";
     </script>
 </body>
 </html>
