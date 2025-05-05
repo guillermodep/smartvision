@@ -20,21 +20,42 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            background-color: #000000;
             color: var(--dark-color);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
         }
         
         .login-container {
             max-width: 400px;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 30px;
             width: 100%;
+            backdrop-filter: blur(5px);
         }
         
         .login-header {
@@ -132,51 +153,142 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="login-logo">
-                <i class="fas fa-eye"></i>
-            </div>
-            <h1 class="login-title">Smart Vision</h1>
-            <p class="login-subtitle">Extractor de Texto con Inteligencia Artificial</p>
-        </div>
-        
-        <div class="alert alert-danger" id="error-alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="error-message">Credenciales inválidas. Por favor, inténtalo de nuevo.</span>
-        </div>
-        
-        <form id="login-form">
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="fas fa-user"></i>
-                </span>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Usuario" required autofocus>
+    <div id="particles-container"></div>
+    
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h1 class="login-title">Smart Vision</h1>
+                <p class="login-subtitle">Extractor de Texto con Inteligencia Artificial</p>
             </div>
             
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="fas fa-lock"></i>
-                </span>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
-                <span class="input-group-text password-toggle" onclick="togglePassword()">
-                    <i class="fas fa-eye" id="toggleIcon"></i>
-                </span>
+            <div class="alert alert-danger" id="error-alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="error-message">Credenciales inválidas. Por favor, inténtalo de nuevo.</span>
             </div>
             
-            <button type="submit" class="btn btn-primary" id="login-button">
-                <span class="spinner-border spinner-border-sm" id="login-spinner" role="status" aria-hidden="true"></span>
-                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
-            </button>
-        </form>
-        
-        <div class="login-footer">
-            <p>Desarrollado con <i class="fas fa-heart" style="color: var(--warning-color);"></i> por Smart Vision Team</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Usuario" required autofocus>
+                </div>
+                
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+                    <span class="input-group-text password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="login-button">
+                    <span class="spinner-border spinner-border-sm" id="login-spinner" role="status" aria-hidden="true"></span>
+                    <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Desarrollado con <i class="fas fa-heart" style="color: var(--warning-color);"></i> por Smart Vision Team</p>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@tsparticles/react@3.0.0/tsparticles.react.min.js"></script>
+    <script src="https://unpkg.com/@tsparticles/slim@3.0.0/tsparticles.slim.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.min.js"></script>
     <script>
+        // Inicializar partículas
+        window.addEventListener('DOMContentLoaded', async () => {
+            await tsParticles.load("particles-container", {
+                background: {
+                    color: {
+                        value: "#000000",
+                    },
+                },
+                fpsLimit: 120,
+                interactivity: {
+                    events: {
+                        onClick: {
+                            enable: true,
+                            mode: "push",
+                        },
+                        onHover: {
+                            enable: false,
+                            mode: "repulse",
+                        },
+                        resize: true,
+                    },
+                    modes: {
+                        push: {
+                            quantity: 4,
+                        },
+                        repulse: {
+                            distance: 200,
+                            duration: 0.4,
+                        },
+                    },
+                },
+                particles: {
+                    color: {
+                        value: "#ffffff",
+                    },
+                    move: {
+                        direction: "none",
+                        enable: true,
+                        outModes: {
+                            default: "out",
+                        },
+                        random: false,
+                        speed: {
+                            min: 0.1,
+                            max: 0.5,
+                        },
+                        straight: false,
+                    },
+                    number: {
+                        density: {
+                            enable: true,
+                            area: 800,
+                        },
+                        value: 100,
+                    },
+                    opacity: {
+                        value: {
+                            min: 0.1,
+                            max: 1,
+                        },
+                        animation: {
+                            enable: true,
+                            speed: 1,
+                            decay: 0,
+                            sync: false,
+                            mode: "auto",
+                            startValue: "random",
+                            destroy: "none",
+                        },
+                    },
+                    shape: {
+                        type: "circle",
+                    },
+                    size: {
+                        value: {
+                            min: 1,
+                            max: 3,
+                        },
+                    },
+                },
+                detectRetina: true,
+            });
+        });
+
         // Credenciales válidas (en una aplicación real, esto estaría en el servidor)
         const VALID_USERNAME = "admin";
         const VALID_PASSWORD = "smartsolutions";
@@ -202,28 +314,28 @@
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Mostrar spinner y deshabilitar botón
+                // Mostrar spinner
                 loginButton.disabled = true;
                 loginSpinner.style.display = 'inline-block';
-                errorAlert.style.display = 'none';
                 
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
                 
-                // Simular un retraso de autenticación
-                setTimeout(() => {
-                    // Verificar credenciales
+                // Simular una petición al servidor (timeout)
+                setTimeout(function() {
                     if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                        // Guardar token en localStorage
-                        localStorage.setItem('smartvision_token', 'authenticated');
-                        localStorage.setItem('smartvision_username', username);
+                        // Crear un token simple (en una app real, esto sería un JWT desde el servidor)
+                        const token = btoa(username + ':' + new Date().getTime());
+                        localStorage.setItem('smartvision_token', token);
                         
                         // Redirigir a la página principal
                         window.location.href = '/';
                     } else {
-                        // Mostrar mensaje de error
-                        errorMessage.textContent = 'Credenciales inválidas. Por favor, inténtalo de nuevo.';
+                        // Mostrar error
+                        errorMessage.textContent = 'Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.';
                         errorAlert.style.display = 'block';
+                        
+                        // Ocultar spinner
                         loginButton.disabled = false;
                         loginSpinner.style.display = 'none';
                     }
