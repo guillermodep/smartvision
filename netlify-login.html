@@ -201,122 +201,128 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Cargar particles.js desde CDN -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Cargar tsParticles desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     
     <script>
-        // Inicializar partículas con particles.js
-        document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar partículas
+        document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log("Inicializando partículas con particles.js...");
+                console.log("Inicializando partículas...");
                 
-                particlesJS("tsparticles", {
-                    "particles": {
-                        "number": {
-                            "value": 160,
-                            "density": {
-                                "enable": true,
-                                "value_area": 800
+                await tsParticles.load("tsparticles", {
+                    fullScreen: false,
+                    background: {
+                        color: {
+                            value: "#000000"
+                        }
+                    },
+                    particles: {
+                        number: {
+                            value: 160,
+                            density: {
+                                enable: true,
+                                value_area: 800
                             }
                         },
-                        "color": {
-                            "value": ["#ffffff", "#4361ee", "#4cc9f0", "#f72585"]
+                        color: {
+                            value: ["#ffffff", "#4361ee", "#4cc9f0", "#f72585"]
                         },
-                        "shape": {
-                            "type": "circle",
-                            "stroke": {
-                                "width": 0,
-                                "color": "#000000"
-                            },
-                            "polygon": {
-                                "nb_sides": 5
+                        shape: {
+                            type: "circle"
+                        },
+                        opacity: {
+                            value: 1,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 1,
+                                opacity_min: 0.1,
+                                sync: false
                             }
                         },
-                        "opacity": {
-                            "value": 0.8,
-                            "random": true,
-                            "anim": {
-                                "enable": true,
-                                "speed": 1,
-                                "opacity_min": 0.1,
-                                "sync": false
+                        size: {
+                            value: 3,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 2,
+                                size_min: 0.3,
+                                sync: false
                             }
                         },
-                        "size": {
-                            "value": 3,
-                            "random": true,
-                            "anim": {
-                                "enable": true,
-                                "speed": 2,
-                                "size_min": 0.3,
-                                "sync": false
+                        line_linked: {
+                            enable: true,
+                            distance: 150,
+                            color: "#ffffff",
+                            opacity: 0.4,
+                            width: 1
+                        },
+                        move: {
+                            enable: true,
+                            speed: 1,
+                            direction: "none",
+                            random: true,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false,
+                            attract: {
+                                enable: false,
+                                rotateX: 600,
+                                rotateY: 1200
                             }
                         },
-                        "line_linked": {
-                            "enable": true,
-                            "distance": 150,
-                            "color": "#ffffff",
-                            "opacity": 0.4,
-                            "width": 1
-                        },
-                        "move": {
-                            "enable": true,
-                            "speed": 1,
-                            "direction": "none",
-                            "random": true,
-                            "straight": false,
-                            "out_mode": "out",
-                            "bounce": false,
-                            "attract": {
-                                "enable": false,
-                                "rotateX": 600,
-                                "rotateY": 1200
+                        twinkle: {
+                            particles: {
+                                enable: true,
+                                frequency: 0.05,
+                                opacity: 1
                             }
                         }
                     },
-                    "interactivity": {
-                        "detect_on": "canvas",
-                        "events": {
-                            "onhover": {
-                                "enable": true,
-                                "mode": "grab"
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: {
+                                enable: true,
+                                mode: "grab"
                             },
-                            "onclick": {
-                                "enable": true,
-                                "mode": "push"
+                            onclick: {
+                                enable: true,
+                                mode: "push"
                             },
-                            "resize": true
+                            resize: true
                         },
-                        "modes": {
-                            "grab": {
-                                "distance": 140,
-                                "line_linked": {
-                                    "opacity": 1
+                        modes: {
+                            grab: {
+                                distance: 140,
+                                line_linked: {
+                                    opacity: 1
                                 }
                             },
-                            "bubble": {
-                                "distance": 400,
-                                "size": 40,
-                                "duration": 2,
-                                "opacity": 8,
-                                "speed": 3
+                            bubble: {
+                                distance: 400,
+                                size: 40,
+                                duration: 2,
+                                opacity: 8,
+                                speed: 3
                             },
-                            "repulse": {
-                                "distance": 200,
-                                "duration": 0.4
+                            repulse: {
+                                distance: 200,
+                                duration: 0.4
                             },
-                            "push": {
-                                "particles_nb": 4
+                            push: {
+                                particles_nb: 4
                             },
-                            "remove": {
-                                "particles_nb": 2
+                            remove: {
+                                particles_nb: 2
                             }
                         }
                     },
-                    "retina_detect": true
+                    retina_detect: true
                 });
                 
-                console.log("Partículas inicializadas correctamente con particles.js");
+                console.log("Partículas inicializadas correctamente");
             } catch (error) {
                 console.error("Error al inicializar partículas:", error);
             }
@@ -351,7 +357,7 @@
                 const password = document.getElementById('password').value;
                 
                 // Autenticación con Netlify Functions
-                fetch('/.netlify/functions/auth/login', {
+                fetch('/.netlify/functions/auth', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -365,8 +371,7 @@
                 .then(data => {
                     if (data.success) {
                         // Guardar token en localStorage
-                        localStorage.setItem('smartvision_token', 'authenticated');
-                        localStorage.setItem('smartvision_username', data.user.username);
+                        localStorage.setItem('smartvision_token', data.token);
                         
                         // Redirigir a la página principal
                         window.location.href = '/';
