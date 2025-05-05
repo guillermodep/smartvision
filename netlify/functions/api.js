@@ -28,7 +28,7 @@ app.get('/check-init', (req, res) => {
 });
 
 // Endpoint para extraer texto de imágenes
-app.post('/extract-text', upload.single('image'), async (req, res) => {
+app.post('/extract-text', upload.single('file'), async (req, res) => {
   try {
     // Verificar si tenemos las credenciales necesarias
     const endpoint = process.env.AZURE_COMPUTER_VISION_ENDPOINT;
