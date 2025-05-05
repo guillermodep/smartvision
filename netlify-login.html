@@ -201,134 +201,119 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Cargar tsParticles desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <!-- Cargar tsParticles desde CDN con versión específica y completa -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js" integrity="sha512-diXPiDe8wuQTQjZUuLgZSaCWG/MeJGn3xKB+5BgKxP7t5yP9OsQIkEtJoiIvTqLZTTaWXeIu9TKEwPTPKXCk5Q==" crossorigin="anonymous"></script>
     
     <script>
         // Limpiar localStorage al cargar la página (solo para desarrollo)
         // localStorage.removeItem('smartvision_token');
         
-        // Inicializar partículas
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                console.log("Inicializando partículas...");
-                
-                await tsParticles.load("tsparticles", {
-                    fullScreen: false,
-                    background: {
-                        color: {
-                            value: "#000000"
-                        }
-                    },
-                    particles: {
-                        number: {
-                            value: 160,
-                            density: {
-                                enable: true,
-                                value_area: 800
-                            }
-                        },
-                        color: {
-                            value: ["#ffffff", "#4361ee", "#4cc9f0", "#f72585"]
-                        },
-                        shape: {
-                            type: "circle"
-                        },
-                        opacity: {
-                            value: 1,
-                            random: true,
-                            anim: {
-                                enable: true,
-                                speed: 1,
-                                opacity_min: 0.1,
-                                sync: false
-                            }
-                        },
-                        size: {
-                            value: 3,
-                            random: true,
-                            anim: {
-                                enable: true,
-                                speed: 2,
-                                size_min: 0.3,
-                                sync: false
-                            }
-                        },
-                        line_linked: {
-                            enable: true,
-                            distance: 150,
-                            color: "#ffffff",
-                            opacity: 0.4,
-                            width: 1
-                        },
-                        move: {
-                            enable: true,
-                            speed: 1,
-                            direction: "none",
-                            random: true,
-                            straight: false,
-                            out_mode: "out",
-                            bounce: false,
-                            attract: {
-                                enable: false,
-                                rotateX: 600,
-                                rotateY: 1200
-                            }
-                        },
-                        twinkle: {
-                            particles: {
-                                enable: true,
-                                frequency: 0.05,
-                                opacity: 1
-                            }
-                        }
-                    },
-                    interactivity: {
-                        detect_on: "canvas",
-                        events: {
-                            onhover: {
-                                enable: true,
-                                mode: "grab"
-                            },
-                            onclick: {
-                                enable: true,
-                                mode: "push"
-                            },
-                            resize: true
-                        },
-                        modes: {
-                            grab: {
-                                distance: 140,
-                                line_linked: {
-                                    opacity: 1
+        // Inicializar partículas - Versión simplificada para Netlify
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pequeño retraso para asegurar que la biblioteca se cargue completamente
+            setTimeout(async function() {
+                try {
+                    console.log("Inicializando partículas...");
+                    
+                    if (typeof tsParticles !== 'undefined') {
+                        await tsParticles.load("tsparticles", {
+                            fullScreen: false,
+                            background: {
+                                color: {
+                                    value: "#000000"
                                 }
                             },
-                            bubble: {
-                                distance: 400,
-                                size: 40,
-                                duration: 2,
-                                opacity: 8,
-                                speed: 3
+                            particles: {
+                                number: {
+                                    value: 160,
+                                    density: {
+                                        enable: true,
+                                        value_area: 800
+                                    }
+                                },
+                                color: {
+                                    value: ["#ffffff", "#4361ee", "#4cc9f0", "#f72585"]
+                                },
+                                shape: {
+                                    type: "circle"
+                                },
+                                opacity: {
+                                    value: 1,
+                                    random: true,
+                                    anim: {
+                                        enable: true,
+                                        speed: 1,
+                                        opacity_min: 0.1,
+                                        sync: false
+                                    }
+                                },
+                                size: {
+                                    value: 3,
+                                    random: true,
+                                    anim: {
+                                        enable: true,
+                                        speed: 2,
+                                        size_min: 0.3,
+                                        sync: false
+                                    }
+                                },
+                                line_linked: {
+                                    enable: true,
+                                    distance: 150,
+                                    color: "#ffffff",
+                                    opacity: 0.4,
+                                    width: 1
+                                },
+                                move: {
+                                    enable: true,
+                                    speed: 1,
+                                    direction: "none",
+                                    random: true,
+                                    straight: false,
+                                    out_mode: "out",
+                                    bounce: false,
+                                    attract: {
+                                        enable: false,
+                                        rotateX: 600,
+                                        rotateY: 1200
+                                    }
+                                }
                             },
-                            repulse: {
-                                distance: 200,
-                                duration: 0.4
+                            interactivity: {
+                                detect_on: "canvas",
+                                events: {
+                                    onhover: {
+                                        enable: true,
+                                        mode: "grab"
+                                    },
+                                    onclick: {
+                                        enable: true,
+                                        mode: "push"
+                                    },
+                                    resize: true
+                                },
+                                modes: {
+                                    grab: {
+                                        distance: 140,
+                                        line_linked: {
+                                            opacity: 1
+                                        }
+                                    },
+                                    push: {
+                                        particles_nb: 4
+                                    }
+                                }
                             },
-                            push: {
-                                particles_nb: 4
-                            },
-                            remove: {
-                                particles_nb: 2
-                            }
-                        }
-                    },
-                    retina_detect: true
-                });
-                
-                console.log("Partículas inicializadas correctamente");
-            } catch (error) {
-                console.error("Error al inicializar partículas:", error);
-            }
+                            retina_detect: true
+                        });
+                        console.log("Partículas inicializadas correctamente");
+                    } else {
+                        console.error("tsParticles no está definido");
+                    }
+                } catch (error) {
+                    console.error("Error al inicializar partículas:", error);
+                }
+            }, 500); // Retraso de 500ms
         });
 
         // Verificar si el usuario ya está autenticado
