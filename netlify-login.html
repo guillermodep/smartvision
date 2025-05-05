@@ -29,7 +29,7 @@
             position: relative;
         }
         
-        #tsparticles {
+        #particles-canvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -153,7 +153,7 @@
     </style>
 </head>
 <body>
-    <div id="tsparticles"></div>
+    <canvas id="particles-canvas"></canvas>
     
     <div class="login-wrapper">
         <div class="login-container">
@@ -201,131 +201,133 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Cargar tsParticles desde CDN - exactamente igual que en local -->
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     
     <script>
-        // Inicializar partículas
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                console.log("Inicializando partículas...");
-                
-                await tsParticles.load("tsparticles", {
-                    fullScreen: false,
-                    background: {
-                        color: {
-                            value: "#000000"
-                        }
-                    },
-                    particles: {
-                        number: {
-                            value: 160,
-                            density: {
-                                enable: true,
-                                value_area: 800
-                            }
-                        },
-                        color: {
-                            value: ["#ffffff", "#4361ee", "#4cc9f0", "#f72585"]
-                        },
-                        shape: {
-                            type: "circle"
-                        },
-                        opacity: {
-                            value: 1,
-                            random: true,
-                            anim: {
-                                enable: true,
-                                speed: 1,
-                                opacity_min: 0.1,
-                                sync: false
-                            }
-                        },
-                        size: {
-                            value: 3,
-                            random: true,
-                            anim: {
-                                enable: true,
-                                speed: 2,
-                                size_min: 0.3,
-                                sync: false
-                            }
-                        },
-                        line_linked: {
-                            enable: true,
-                            distance: 150,
-                            color: "#ffffff",
-                            opacity: 0.4,
-                            width: 1
-                        },
-                        move: {
-                            enable: true,
-                            speed: 1,
-                            direction: "none",
-                            random: true,
-                            straight: false,
-                            out_mode: "out",
-                            bounce: false,
-                            attract: {
-                                enable: false,
-                                rotateX: 600,
-                                rotateY: 1200
-                            }
-                        },
-                        twinkle: {
-                            particles: {
-                                enable: true,
-                                frequency: 0.05,
-                                opacity: 1
-                            }
-                        }
-                    },
-                    interactivity: {
-                        detect_on: "canvas",
-                        events: {
-                            onhover: {
-                                enable: true,
-                                mode: "grab"
-                            },
-                            onclick: {
-                                enable: true,
-                                mode: "push"
-                            },
-                            resize: true
-                        },
-                        modes: {
-                            grab: {
-                                distance: 140,
-                                line_linked: {
-                                    opacity: 1
-                                }
-                            },
-                            bubble: {
-                                distance: 400,
-                                size: 40,
-                                duration: 2,
-                                opacity: 8,
-                                speed: 3
-                            },
-                            repulse: {
-                                distance: 200,
-                                duration: 0.4
-                            },
-                            push: {
-                                particles_nb: 4
-                            },
-                            remove: {
-                                particles_nb: 2
-                            }
-                        }
-                    },
-                    retina_detect: true
-                });
-                
-                console.log("Partículas inicializadas correctamente");
-            } catch (error) {
-                console.error("Error al inicializar partículas:", error);
+        // Implementación directa del efecto de partículas con Canvas API
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Configurar canvas para que ocupe toda la pantalla
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
             }
+            
+            // Llamar a resizeCanvas cuando se carga la página y cuando se redimensiona la ventana
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Colores de las partículas
+            const colors = ['#ffffff', '#4361ee', '#4cc9f0', '#f72585'];
+            
+            // Clase Particle para crear y manejar partículas
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 3 + 1;
+                    this.speedX = Math.random() * 2 - 1;
+                    this.speedY = Math.random() * 2 - 1;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.opacity = Math.random() * 0.5 + 0.3;
+                    this.connected = [];
+                }
+                
+                // Actualizar posición de la partícula
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    
+                    // Rebotar en los bordes
+                    if (this.x > canvas.width || this.x < 0) {
+                        this.speedX = -this.speedX;
+                    }
+                    if (this.y > canvas.height || this.y < 0) {
+                        this.speedY = -this.speedY;
+                    }
+                    
+                    // Efecto de parpadeo
+                    if (Math.random() < 0.01) {
+                        this.opacity = Math.random() * 0.5 + 0.3;
+                    }
+                }
+                
+                // Dibujar la partícula
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.opacity;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                
+                // Conectar partículas cercanas
+                connect(particles) {
+                    this.connected = [];
+                    for (let i = 0; i < particles.length; i++) {
+                        const dx = this.x - particles[i].x;
+                        const dy = this.y - particles[i].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 150) {
+                            this.connected.push(i);
+                            ctx.beginPath();
+                            ctx.moveTo(this.x, this.y);
+                            ctx.lineTo(particles[i].x, particles[i].y);
+                            ctx.strokeStyle = this.color;
+                            ctx.globalAlpha = 0.1;
+                            ctx.stroke();
+                            ctx.globalAlpha = 1;
+                        }
+                    }
+                }
+            }
+            
+            // Crear array de partículas
+            const particles = [];
+            const particleCount = 100;
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            
+            // Función de animación
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Actualizar y dibujar cada partícula
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                
+                // Conectar partículas cercanas
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].connect(particles);
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // Iniciar animación
+            animate();
+            
+            // Añadir interactividad al hacer clic
+            canvas.addEventListener('click', function(event) {
+                for (let i = 0; i < 5; i++) {
+                    const particle = new Particle();
+                    particle.x = event.x;
+                    particle.y = event.y;
+                    particles.push(particle);
+                }
+                
+                // Limitar el número máximo de partículas para mantener el rendimiento
+                if (particles.length > 200) {
+                    particles.splice(0, particles.length - 200);
+                }
+            });
         });
 
         // Verificar si el usuario ya está autenticado
