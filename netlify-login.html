@@ -6,9 +6,12 @@
     <title>Iniciar Sesión - Smart Vision</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap">
     <style>
         :root {
             --primary-color: #4361ee;
+            --primary-light: #5a75f0;
+            --primary-dark: #3a55d9;
             --secondary-color: #3f37c9;
             --accent-color: #4895ef;
             --light-color: #f8f9fa;
@@ -16,10 +19,12 @@
             --success-color: #4cc9f0;
             --warning-color: #f72585;
             --info-color: #4361ee;
+            --gradient-1: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            --gradient-2: linear-gradient(135deg, var(--warning-color), var(--accent-color));
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #000000;
             color: var(--dark-color);
             height: 100vh;
@@ -29,13 +34,43 @@
             position: relative;
         }
         
-        #particles-canvas {
-            position: absolute;
+        /* Estrellas CSS */
+        .stars {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+            transition: transform 0.3s ease;
+        }
+        
+        .star.blue {
+            background-color: #4361ee;
+        }
+        
+        .star.pink {
+            background-color: #f72585;
+        }
+        
+        .star.cyan {
+            background-color: #4cc9f0;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
         }
         
         .login-wrapper {
@@ -46,16 +81,63 @@
             align-items: center;
             justify-content: center;
             width: 100%;
+            opacity: 0;
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            0% { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .login-container {
             max-width: 400px;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0.85);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 30px;
             width: 100%;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        
+        @keyframes cardAppear {
+            0% { 
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            100% { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            animation: gradientShift 8s infinite alternate;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .login-header {
@@ -67,18 +149,56 @@
             color: var(--primary-color);
             font-weight: 700;
             margin-bottom: 10px;
+            font-family: 'Montserrat', sans-serif;
+            animation: titleAppear 1s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        @keyframes titleAppear {
+            0% { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .login-subtitle {
             color: var(--secondary-color);
             font-weight: 300;
             margin-bottom: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--primary-color);
+            width: 0;
+            animation: typing 3.5s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
+            animation-delay: 1s;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary-color) }
         }
         
         .login-logo {
             font-size: 48px;
             color: var(--primary-color);
             margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
         .form-control {
@@ -87,11 +207,13 @@
             border: 1px solid #ced4da;
             transition: all 0.3s ease;
             margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
         }
         
         .form-control:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+            background-color: rgba(255, 255, 255, 0.95);
         }
         
         .input-group-text {
@@ -108,23 +230,100 @@
         
         .input-group {
             margin-bottom: 20px;
+            animation: slideUp 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .input-group:nth-child(1) {
+            animation-delay: 1.2s;
+        }
+        
+        .input-group:nth-child(2) {
+            animation-delay: 1.4s;
+        }
+        
+        @keyframes slideUp {
+            0% { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            border: none;
             padding: 12px 15px;
             font-weight: 600;
             border-radius: 8px;
             transition: all 0.3s ease;
             width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+            animation-delay: 1.6s;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
         }
         
         .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            background-position: right center;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary:active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.5;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
         }
         
         .alert {
@@ -132,6 +331,13 @@
             padding: 15px 20px;
             margin-bottom: 20px;
             display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
         
         .login-footer {
@@ -139,6 +345,9 @@
             margin-top: 30px;
             color: #6c757d;
             font-size: 14px;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 2s;
+            opacity: 0;
         }
         
         .password-toggle {
@@ -150,10 +359,21 @@
             display: none;
             margin-right: 8px;
         }
+        
+        /* Líneas de conexión entre estrellas */
+        .constellation-line {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform-origin: 0 0;
+            z-index: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <canvas id="particles-canvas"></canvas>
+    <div class="stars">
+        <!-- Las estrellas se generarán con JavaScript -->
+    </div>
     
     <div class="login-wrapper">
         <div class="login-container">
@@ -203,130 +423,131 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Implementación directa del efecto de partículas con Canvas API
+        // Generar estrellas con JavaScript y añadir interactividad
         document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('particles-canvas');
-            const ctx = canvas.getContext('2d');
+            const starsContainer = document.querySelector('.stars');
+            const starCount = 200; // Número de estrellas
+            const stars = []; // Array para almacenar referencias a las estrellas
+            const constellationDistance = 150; // Distancia máxima para conectar estrellas
+            let mouseX = 0;
+            let mouseY = 0;
             
-            // Configurar canvas para que ocupe toda la pantalla
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+            // Colores de las estrellas
+            const colors = ['', 'blue', 'pink', 'cyan']; // '' para blanco (default)
+            
+            // Crear estrellas
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Asignar color aleatorio
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                if (colorClass) {
+                    star.classList.add(colorClass);
+                }
+                
+                // Posición aleatoria
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Retraso aleatorio en la animación
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                
+                // Añadir al contenedor
+                starsContainer.appendChild(star);
+                
+                // Guardar referencia y posición
+                stars.push({
+                    element: star,
+                    x: x,
+                    y: y,
+                    size: size,
+                    connections: []
+                });
             }
             
-            // Llamar a resizeCanvas cuando se carga la página y cuando se redimensiona la ventana
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            
-            // Colores de las partículas
-            const colors = ['#ffffff', '#4361ee', '#4cc9f0', '#f72585'];
-            
-            // Clase Particle para crear y manejar partículas
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 3 + 1;
-                    this.speedX = Math.random() * 2 - 1;
-                    this.speedY = Math.random() * 2 - 1;
-                    this.color = colors[Math.floor(Math.random() * colors.length)];
-                    this.opacity = Math.random() * 0.5 + 0.3;
-                    this.connected = [];
-                }
+            // Crear conexiones entre estrellas cercanas (efecto constelación)
+            function createConstellations() {
+                // Primero eliminar líneas existentes
+                document.querySelectorAll('.constellation-line').forEach(line => line.remove());
                 
-                // Actualizar posición de la partícula
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    
-                    // Rebotar en los bordes
-                    if (this.x > canvas.width || this.x < 0) {
-                        this.speedX = -this.speedX;
-                    }
-                    if (this.y > canvas.height || this.y < 0) {
-                        this.speedY = -this.speedY;
-                    }
-                    
-                    // Efecto de parpadeo
-                    if (Math.random() < 0.01) {
-                        this.opacity = Math.random() * 0.5 + 0.3;
-                    }
-                }
-                
-                // Dibujar la partícula
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.globalAlpha = this.opacity;
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-                
-                // Conectar partículas cercanas
-                connect(particles) {
-                    this.connected = [];
-                    for (let i = 0; i < particles.length; i++) {
-                        const dx = this.x - particles[i].x;
-                        const dy = this.y - particles[i].y;
+                for (let i = 0; i < stars.length; i++) {
+                    stars[i].connections = [];
+                    for (let j = i + 1; j < stars.length; j++) {
+                        // Calcular distancia entre estrellas
+                        const dx = (stars[i].x - stars[j].x) * window.innerWidth / 100;
+                        const dy = (stars[i].y - stars[j].y) * window.innerHeight / 100;
                         const distance = Math.sqrt(dx * dx + dy * dy);
                         
-                        if (distance < 150) {
-                            this.connected.push(i);
-                            ctx.beginPath();
-                            ctx.moveTo(this.x, this.y);
-                            ctx.lineTo(particles[i].x, particles[i].y);
-                            ctx.strokeStyle = this.color;
-                            ctx.globalAlpha = 0.1;
-                            ctx.stroke();
-                            ctx.globalAlpha = 1;
+                        // Si están lo suficientemente cerca, crear una línea
+                        if (distance < constellationDistance) {
+                            const line = document.createElement('div');
+                            line.classList.add('constellation-line');
+                            
+                            // Posicionar y dimensionar la línea
+                            const x1 = stars[i].x * window.innerWidth / 100;
+                            const y1 = stars[i].y * window.innerHeight / 100;
+                            const x2 = stars[j].x * window.innerWidth / 100;
+                            const y2 = stars[j].y * window.innerHeight / 100;
+                            
+                            // Calcular longitud y ángulo de la línea
+                            const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+                            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                            
+                            // Aplicar estilos
+                            line.style.width = `${length}px`;
+                            line.style.height = '1px';
+                            line.style.left = `${x1}px`;
+                            line.style.top = `${y1}px`;
+                            line.style.transform = `rotate(${angle}deg)`;
+                            
+                            // Añadir al DOM
+                            starsContainer.appendChild(line);
+                            
+                            // Guardar referencia
+                            stars[i].connections.push(j);
                         }
                     }
                 }
             }
             
-            // Crear array de partículas
-            const particles = [];
-            const particleCount = 100;
+            // Crear constelaciones iniciales
+            createConstellations();
             
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
+            // Recrear constelaciones al cambiar tamaño de ventana
+            window.addEventListener('resize', createConstellations);
             
-            // Función de animación
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Interactividad con el ratón
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
                 
-                // Actualizar y dibujar cada partícula
-                for (let i = 0; i < particles.length; i++) {
-                    particles[i].update();
-                    particles[i].draw();
-                }
-                
-                // Conectar partículas cercanas
-                for (let i = 0; i < particles.length; i++) {
-                    particles[i].connect(particles);
-                }
-                
-                requestAnimationFrame(animate);
-            }
-            
-            // Iniciar animación
-            animate();
-            
-            // Añadir interactividad al hacer clic
-            canvas.addEventListener('click', function(event) {
-                for (let i = 0; i < 5; i++) {
-                    const particle = new Particle();
-                    particle.x = event.x;
-                    particle.y = event.y;
-                    particles.push(particle);
-                }
-                
-                // Limitar el número máximo de partículas para mantener el rendimiento
-                if (particles.length > 200) {
-                    particles.splice(0, particles.length - 200);
-                }
+                // Mover estrellas ligeramente hacia el cursor
+                stars.forEach(star => {
+                    const starX = star.x * window.innerWidth / 100;
+                    const starY = star.y * window.innerHeight / 100;
+                    
+                    // Calcular distancia al cursor
+                    const dx = mouseX - starX;
+                    const dy = mouseY - starY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Si está cerca del cursor, mover ligeramente
+                    if (distance < 200) {
+                        const moveX = dx * 0.02;
+                        const moveY = dy * 0.02;
+                        star.element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    } else {
+                        star.element.style.transform = 'translate(0, 0)';
+                    }
+                });
             });
         });
 
@@ -350,6 +571,11 @@
             
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Añadir efecto de ripple al botón
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                loginButton.appendChild(ripple);
                 
                 // Mostrar spinner
                 loginButton.disabled = true;
