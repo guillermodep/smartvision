@@ -9,15 +9,25 @@
   publish = "."
   autoLaunch = true
 
-# Usar la página de redirección como página principal
+# Servir el archivo index.html de la raíz
 [[redirects]]
   from = "/"
-  to = "/netlify-redirect.html"
+  to = "/index.html"
   status = 200
 
-# Redireccionar todas las demás solicitudes a la versión principal
+# Redireccionar las llamadas a la API a las funciones de Netlify
+[[redirects]]
+  from = "/extract-text"
+  to = "/.netlify/functions/api"
+  status = 200
+
+[[redirects]]
+  from = "/check-init"
+  to = "/.netlify/functions/api"
+  status = 200
+
+# Para cualquier otra ruta, servir index.html (para SPA)
 [[redirects]]
   from = "/*"
-  to = "https://smartvision-app.onrender.com/:splat"
-  status = 302
-  force = true
+  to = "/index.html"
+  status = 200
