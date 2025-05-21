@@ -35,6 +35,13 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
     const deployment = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini';
     const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2025-01-01-preview';
     
+    console.log("Variables de entorno:", {
+      endpoint: endpoint ? "Configurado" : "No configurado",
+      key: key ? "Configurado" : "No configurado",
+      deployment,
+      apiVersion
+    });
+    
     if (!endpoint || !key) {
       return res.status(400).json({
         error: "Cliente de Azure OpenAI no está inicializado. Verifica las credenciales en las variables de entorno."
@@ -49,6 +56,15 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
     }
     
     console.log("Procesando imagen con Azure OpenAI...");
+    console.log("Tamaño de la imagen:", req.file.size, "bytes");
+    
+    // Comprobar si la imagen es demasiado grande (más de 20MB)
+    if (req.file.size > 20 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: "La imagen es demasiado grande. El tamaño máximo permitido es 20MB."
+      });
+    }
     
     // Convertir la imagen a base64
     const imageBase64 = req.file.buffer.toString('base64');
@@ -56,37 +72,43 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
     // Preparar la URL para la API de Azure OpenAI
     const url = `${endpoint}openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
     
-    // Construir el mensaje con la imagen
+    // Construir el mensaje con la imagen - simplificado para facturas
     const payload = {
       "messages": [
         {
           "role": "system", 
-          "content": "Eres un asistente especializado en extraer texto de imágenes. Extrae todo el texto visible en la imagen, incluyendo números de factura, fechas, importes y cualquier otra información relevante. Organiza la información de manera clara y estructurada."
+          "content": "Eres un asistente especializado en extraer texto de facturas y recibos. Extrae todo el texto visible, especialmente números de factura, fechas e importes. Responde de forma clara y concisa."
         },
         {
           "role": "user", 
           "content": [
-            {"type": "text", "text": "Extrae todo el texto de esta imagen, prestando especial atención a los números de factura, recibos o tickets."},
+            {"type": "text", "text": "Extrae el texto de esta factura o recibo. Presta especial atención a los números de factura."},
             {"type": "image_url", "image_url": {"url": `data:image/jpeg;base64,${imageBase64}`}}
           ]
         }
       ],
       "temperature": 0.0,
-      "max_tokens": 4000
+      "max_tokens": 2000  // Reducido para mejorar el rendimiento
     };
     
-    // Hacer la solicitud a la API de Azure OpenAI
+    console.log("Enviando solicitud a Azure OpenAI...");
+    
+    // Hacer la solicitud a la API de Azure OpenAI con timeout
     const response = await axios.post(url, payload, {
       headers: {
         'Content-Type': 'application/json',
         'api-key': key
-      }
+      },
+      timeout: 25000  // 25 segundos de timeout
     });
+    
+    console.log("Respuesta recibida de Azure OpenAI");
     
     // Verificar si la solicitud fue exitosa
     if (response.status !== 200) {
       console.error("Error al procesar la imagen con OpenAI:", response.status, response.data);
       return res.status(response.status).json({
+        success: false,
         error: `Error al procesar la imagen: ${response.statusText}`
       });
     }
@@ -100,6 +122,7 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
       
       // Extraer números de factura del texto
       const invoiceNumbers = extractInvoiceNumbers(extractedText);
+      console.log("Números de factura encontrados:", invoiceNumbers.length);
       
       // Devolver los resultados
       return res.json({
@@ -116,10 +139,22 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error al procesar la imagen:", error);
+    console.error("Error al procesar la imagen:", error.message);
+    // Mensaje de error más amigable
+    let errorMessage = "Error al procesar la imagen";
+    
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = "La solicitud ha tardado demasiado tiempo. Intenta con una imagen más pequeña.";
+    } else if (error.response) {
+      errorMessage = `Error del servidor: ${error.response.status} - ${error.response.statusText}`;
+    } else if (error.request) {
+      errorMessage = "No se pudo conectar con el servidor. Verifica tu conexión a internet.";
+    }
+    
     res.status(500).json({
       success: false,
-      error: error.message || "Error al procesar la imagen"
+      error: errorMessage,
+      details: error.message
     });
   }
 });
