@@ -604,14 +604,16 @@
         
         /* Estilos para el modal de progreso */
         .bg-translucent {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         [data-theme="dark"] .bg-translucent {
-            background-color: rgba(33, 37, 41, 0.9);
+            background-color: rgba(33, 37, 41, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .thinking-container {
@@ -1034,7 +1036,7 @@
                     <div class="card-body">
                         <form id="upload-form" enctype="multipart/form-data">
                             <div class="file-upload">
-                                <input type="file" id="file-input" name="file" accept="image/*" class="file-input" />
+                                <input type="file" id="file-input" name="file" accept="image/*" class="file-input" style="display: none;" />
                                 <label for="file-input" class="file-upload-label">
                                     <div class="upload-icon">
                                         <i class="fas fa-cloud-upload-alt"></i>
