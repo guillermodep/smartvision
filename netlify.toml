@@ -9,27 +9,15 @@
   publish = "."
   autoLaunch = true
 
+# Usar la página de redirección como página principal
 [[redirects]]
-  from = "/extract-text"
-  to = "/.netlify/functions/api"
+  from = "/"
+  to = "/netlify-redirect.html"
   status = 200
 
-[[redirects]]
-  from = "/check-init"
-  to = "/.netlify/functions/api"
-  status = 200
-
-[[redirects]]
-  from = "/.netlify/functions/auth/login"
-  to = "/.netlify/functions/auth"
-  status = 200
-
-[[redirects]]
-  from = "/.netlify/functions/auth/verify"
-  to = "/.netlify/functions/auth"
-  status = 200
-
+# Redireccionar todas las demás solicitudes a la versión principal
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "https://smartvision-app.onrender.com/:splat"
+  status = 302
+  force = true
