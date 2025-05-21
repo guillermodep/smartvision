@@ -69,27 +69,52 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
     // Convertir la imagen a base64
     const imageBase64 = req.file.buffer.toString('base64');
     
+    // Verificar el tamaño de la imagen en base64
+    console.log("Tamaño de la imagen en base64:", imageBase64.length, "caracteres");
+    
+    // Si la imagen es muy grande, intentar comprimirla o rechazarla
+    if (imageBase64.length > 10000000) { // Más de 10MB en base64
+      return res.status(400).json({
+        success: false,
+        error: "La imagen es demasiado grande para ser procesada. Por favor, utiliza una imagen más pequeña o de menor resolución."
+      });
+    }
+    
     // Preparar la URL para la API de Azure OpenAI
     const url = `${endpoint}openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
     
-    // Construir el mensaje con la imagen - simplificado para facturas
+    // Determinar si la imagen es un ticket o una factura basado en el nombre del archivo o tamaño
+    const isTicket = req.file.originalname ? 
+                    (req.file.originalname.toLowerCase().includes('ticket') || 
+                     req.file.originalname.toLowerCase().includes('recibo') ||
+                     req.file.size < 500000) : // Menos de 500KB probablemente es un ticket
+                    false;
+    
+    // Construir el mensaje con la imagen - optimizado según el tipo de documento
     const payload = {
       "messages": [
         {
           "role": "system", 
-          "content": "Eres un asistente especializado en extraer texto de facturas y recibos. Extrae todo el texto visible, especialmente números de factura, fechas e importes. Responde de forma clara y concisa."
+          "content": isTicket ?
+            "Eres un asistente especializado en extraer texto de tickets y recibos simples. Extrae solo el texto visible, especialmente números de recibo, fechas e importes. Sé muy conciso." :
+            "Eres un asistente especializado en extraer texto de facturas. Extrae todo el texto visible, especialmente números de factura, fechas e importes. Responde de forma clara y estructurada."
         },
         {
           "role": "user", 
           "content": [
-            {"type": "text", "text": "Extrae el texto de esta factura o recibo. Presta especial atención a los números de factura."},
+            {"type": "text", "text": isTicket ?
+              "Extrae el texto básico de este ticket o recibo. Busca especialmente el número de recibo o ticket." :
+              "Extrae el texto de esta factura. Presta especial atención a los números de factura."
+            },
             {"type": "image_url", "image_url": {"url": `data:image/jpeg;base64,${imageBase64}`}}
           ]
         }
       ],
       "temperature": 0.0,
-      "max_tokens": 2000  // Reducido para mejorar el rendimiento
+      "max_tokens": isTicket ? 1000 : 2000  // Reducido aún más para tickets
     };
+    
+    console.log("Tipo de documento detectado:", isTicket ? "Ticket/Recibo" : "Factura");
     
     console.log("Enviando solicitud a Azure OpenAI...");
     
@@ -140,21 +165,55 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
     }
   } catch (error) {
     console.error("Error al procesar la imagen:", error.message);
-    // Mensaje de error más amigable
-    let errorMessage = "Error al procesar la imagen";
+    console.error("Stack trace:", error.stack);
     
-    if (error.code === 'ECONNABORTED') {
-      errorMessage = "La solicitud ha tardado demasiado tiempo. Intenta con una imagen más pequeña.";
-    } else if (error.response) {
-      errorMessage = `Error del servidor: ${error.response.status} - ${error.response.statusText}`;
-    } else if (error.request) {
-      errorMessage = "No se pudo conectar con el servidor. Verifica tu conexión a internet.";
+    // Mensaje de error más amigable y detallado
+    let errorMessage = "Error al procesar la imagen";
+    let errorDetails = {};
+    
+    // Capturar información sobre el archivo
+    if (req.file) {
+      errorDetails.fileName = req.file.originalname || 'unknown';
+      errorDetails.fileSize = req.file.size || 'unknown';
+      errorDetails.mimeType = req.file.mimetype || 'unknown';
     }
     
+    // Determinar el tipo de error
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = "La solicitud ha tardado demasiado tiempo. Intenta con una imagen más pequeña o de menor resolución.";
+      errorDetails.timeoutError = true;
+    } else if (error.response) {
+      errorMessage = `Error del servidor: ${error.response.status} - ${error.response.statusText}`;
+      errorDetails.serverResponse = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      };
+    } else if (error.request) {
+      errorMessage = "No se pudo conectar con el servidor de Azure OpenAI. Verifica la configuración y tu conexión a internet.";
+      errorDetails.noResponse = true;
+    } else if (error.message.includes('getaddrinfo')) {
+      errorMessage = "No se pudo resolver el nombre del servidor de Azure OpenAI. Verifica que las variables de entorno estén configuradas correctamente.";
+      errorDetails.dnsError = true;
+    } else if (error.message.includes('413')) {
+      errorMessage = "La imagen es demasiado grande para ser procesada. Utiliza una imagen más pequeña.";
+      errorDetails.payloadTooLarge = true;
+    }
+    
+    // Incluir sugerencias para resolver el problema
+    errorDetails.suggestions = [
+      "Utiliza una imagen más pequeña o de menor resolución",
+      "Asegúrate de que la imagen sea clara y legible",
+      "Verifica que las credenciales de Azure OpenAI estén configuradas correctamente",
+      "Intenta con un ticket o factura más simple"
+    ];
+    
+    // Enviar respuesta de error detallada
     res.status(500).json({
       success: false,
       error: errorMessage,
-      details: error.message
+      details: errorDetails,
+      message: error.message
     });
   }
 });
