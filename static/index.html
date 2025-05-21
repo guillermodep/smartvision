@@ -488,6 +488,190 @@
             margin-bottom: 5px;
         }
         
+        .text-description {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .description-label {
+            font-weight: 600;
+            margin-right: 5px;
+            color: #4361ee;
+        }
+        
+        .description-text {
+            font-style: italic;
+        }
+        
+        /* Estilos para los números de factura */
+        .invoice-number-item {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-left: 4px solid #4361ee;
+            padding: 20px;
+        }
+        
+        .invoice-number-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4361ee;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .invoice-number-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        [data-theme="dark"] .invoice-number-value {
+            color: #f8f9fa;
+        }
+        
+        /* Estilos para el análisis de IA con GPT-4o */
+        .gpt4o-analysis {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .gpt4o-analysis h3 {
+            color: #4361ee;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(67, 97, 238, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .gpt4o-analysis h4 {
+            color: #4361ee;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .invoice-numbers-section {
+            background-color: rgba(67, 97, 238, 0.08);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .full-text-section {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .full-text-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        [data-theme="dark"] .gpt4o-analysis {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        [data-theme="dark"] .full-text-section {
+            background-color: rgba(33, 37, 41, 0.7);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="dark"] .full-text-content {
+            color: #e9ecef;
+            background-color: #343a40;
+            border-color: #495057;
+        }
+        
+        /* Estilos para el modal de progreso */
+        .bg-translucent {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] .bg-translucent {
+            background-color: rgba(33, 37, 41, 0.9);
+        }
+        
+        .thinking-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            font-family: monospace;
+        }
+        
+        [data-theme="dark"] .thinking-container {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .thinking-logs {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            white-space: pre-wrap;
+        }
+        
+        [data-theme="dark"] .thinking-logs {
+            color: #e9ecef;
+        }
+        
+        .thinking-step {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .thinking-step:before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress {
+            height: 12px;
+            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] .progress {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-bar {
+            background-color: var(--primary-color);
+            border-radius: 6px;
+        }
+        
         .text-confidence {
             font-size: 12px;
             color: #6c757d;
@@ -850,24 +1034,21 @@
                     <div class="card-body">
                         <form id="upload-form" enctype="multipart/form-data">
                             <div class="file-upload">
-                                <label class="file-upload-label" for="file-input" id="drop-area">
-                                    <div class="file-upload-content">
-                                        <div class="file-upload-icon">
-                                            <i class="fas fa-cloud-upload-alt icon-animated"></i>
-                                        </div>
-                                        <div class="file-upload-text">
-                                            <p class="mb-1">Arrastra y suelta una imagen aquí</p>
-                                            <p class="small text-muted mb-0">o haz clic para seleccionar un archivo</p>
-                                            <p class="small text-muted mt-2">Formatos soportados: JPG, PNG, JPEG, BMP, TIFF</p>
-                                        </div>
+                                <input type="file" id="file-input" name="file" accept="image/*" class="file-input" />
+                                <label for="file-input" class="file-upload-label">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
                                     </div>
-                                    <input type="file" id="file-input" class="file-upload-input" accept="image/*" name="file">
+                                    <span class="upload-text">Arrastra y suelta una imagen aquí<br>o haz clic para seleccionar un archivo</span>
                                 </label>
                                 <div class="file-name mt-2" id="file-name"></div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" id="extract-button">
-                                <i class="fas fa-magic me-2 icon-animated"></i> Extraer Texto
-                            </button>
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary btn-lg w-100" id="extract-button">
+                                    <i class="fas fa-magic me-2"></i> Extraer Texto
+                                </button>
+                                <input type="hidden" name="use_ai_analysis" value="true">
+                            </div>
                         </form>
                         
                         <div class="loading mt-4" id="loading">
@@ -918,6 +1099,25 @@
                                     <i class="fas fa-file-pdf me-2 icon-animated"></i> Descargar PDF
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Progreso -->
+        <div class="modal fade" id="progress-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="progress-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-translucent">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="progress-modal-label"><i class="fas fa-brain me-2"></i>Procesando con IA</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress mb-4">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                        </div>
+                        <div class="thinking-container">
+                            <div id="thinking-logs" class="thinking-logs"></div>
                         </div>
                     </div>
                 </div>
@@ -1258,6 +1458,54 @@
                 }
             }
             
+            // Función para mostrar el modal de progreso
+            function showProgressModal() {
+                const progressModal = new bootstrap.Modal(document.getElementById('progress-modal'));
+                progressModal.show();
+                
+                // Resetear la barra de progreso y los logs
+                const progressBar = document.getElementById('progress-bar');
+                const thinkingLogs = document.getElementById('thinking-logs');
+                progressBar.style.width = '0%';
+                progressBar.setAttribute('aria-valuenow', '0');
+                thinkingLogs.innerHTML = '';
+                
+                return {
+                    progressModal,
+                    progressBar,
+                    thinkingLogs
+                };
+            }
+            
+            // Función para añadir un paso al log de thinking
+            function addThinkingStep(thinkingLogs, step) {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'thinking-step';
+                stepElement.textContent = step;
+                thinkingLogs.appendChild(stepElement);
+                thinkingLogs.scrollTop = thinkingLogs.scrollHeight;
+            }
+            
+            // Función para actualizar la barra de progreso
+            function updateProgress(progressBar, value) {
+                progressBar.style.width = `${value}%`;
+                progressBar.setAttribute('aria-valuenow', value);
+            }
+            
+            // Pasos del procesamiento
+            const processingSteps = [
+                "Inicializando procesamiento de imagen...",
+                "Cargando modelo de visión artificial...",
+                "Analizando contenido de la imagen...",
+                "Extrayendo texto visible...",
+                "Identificando elementos clave (fechas, importes, números de factura)...",
+                "Procesando estructura del documento...",
+                "Aplicando análisis contextual...",
+                "Verificando números de factura y recibos...",
+                "Organizando resultados...",
+                "Finalizando procesamiento..."
+            ];
+            
             uploadForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 
@@ -1267,17 +1515,58 @@
                     return;
                 }
                 
-                // Mostrar indicador de carga
-                loadingIndicator.style.display = 'flex';
-                showLoadingSkeletons();
+                // Siempre usar análisis con IA (es el default ahora)
+                formData.set('use_ai_analysis', 'true');
                 
+                // Mostrar el modal de progreso
+                const { progressModal, progressBar, thinkingLogs } = showProgressModal();
+                
+                // Simular los pasos del procesamiento
+                let currentStep = 0;
+                const totalSteps = processingSteps.length;
+                
+                // Mostrar el primer paso inmediatamente
+                addThinkingStep(thinkingLogs, processingSteps[currentStep]);
+                updateProgress(progressBar, (currentStep / totalSteps) * 100);
+                
+                // Mostrar los siguientes pasos con intervalos
+                const stepInterval = setInterval(() => {
+                    currentStep++;
+                    
+                    if (currentStep < totalSteps) {
+                        addThinkingStep(thinkingLogs, processingSteps[currentStep]);
+                        updateProgress(progressBar, (currentStep / totalSteps) * 100);
+                    } else {
+                        clearInterval(stepInterval);
+                    }
+                }, 800);
+                
+                // Realizar la solicitud al servidor
                 fetch('/extract-text', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    loadingIndicator.style.display = 'none';
+                    // Asegurar que se muestren todos los pasos
+                    clearInterval(stepInterval);
+                    
+                    for (let i = currentStep; i < totalSteps; i++) {
+                        addThinkingStep(thinkingLogs, processingSteps[i]);
+                    }
+                    
+                    updateProgress(progressBar, 100);
+                    
+                    // Añadir mensaje de finalización
+                    addThinkingStep(thinkingLogs, "¡Procesamiento completado con éxito!");
+                    
+                    // Cerrar el modal después de un breve retraso
+                    setTimeout(() => {
+                        progressModal.hide();
+                        
+                        // Limpiar el indicador de carga antiguo
+                        loadingIndicator.style.display = 'none';
+                    }, 1000);
                     
                     if (data.error) {
                         resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${data.error}</div>`;
@@ -1285,9 +1574,84 @@
                         return;
                     }
                     
-                    if (data.status === 'succeeded' && data.results.length > 0) {
+                    // Verificar si es un análisis de IA con GPT-4o
+                    if (data.success === true && data.full_text) {
+                        // Mostrar el texto completo extraído y los números de factura
+                        const fullText = data.full_text;
+                        const invoiceNumbers = data.invoice_numbers || [];
+                        
+                        let resultHtml = `
+                            <div class="gpt4o-analysis">
+                                <h3 class="mb-3"><i class="fas fa-robot me-2"></i>Texto Extraído con IA</h3>
+                        `;
+                        
+                        // Mostrar los números de factura si se encontraron
+                        if (invoiceNumbers.length > 0) {
+                            resultHtml += `
+                                <div class="invoice-numbers-section mb-4">
+                                    <h4 class="mb-3"><i class="fas fa-receipt me-2"></i>Números de Factura Detectados</h4>
+                            `;
+                            
+                            invoiceNumbers.forEach((item, index) => {
+                                const confidence = parseFloat(item.confidence) || 0;
+                                let confidenceClass = 'low-confidence';
+                                
+                                if (confidence >= 0.8) {
+                                    confidenceClass = 'high-confidence';
+                                } else if (confidence >= 0.5) {
+                                    confidenceClass = 'medium-confidence';
+                                }
+                                
+                                resultHtml += `
+                                    <div class="invoice-number-item mb-3">
+                                        <div class="invoice-number-title">Número de Factura ${index + 1}</div>
+                                        <div class="invoice-number-value">${item.invoice_number}</div>
+                                        <div class="text-confidence">
+                                            <span>Confianza: ${(confidence * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="confidence-bar">
+                                            <div class="confidence-level ${confidenceClass}" style="width: ${confidence * 100}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            resultHtml += `</div>`;
+                        } else {
+                            resultHtml += `
+                                <div class="alert alert-info mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No se encontraron números de factura en esta imagen.
+                                </div>
+                            `;
+                        }
+                        
+                        // Mostrar el texto completo extraído
+                        resultHtml += `
+                            <div class="full-text-section">
+                                <h4 class="mb-3"><i class="fas fa-file-alt me-2"></i>Texto Completo Extraído</h4>
+                                <div class="full-text-content">${fullText.replace(/\n/g, '<br>')}</div>
+                            </div>
+                        `;
+                        
+                        resultHtml += `</div>`;
+                        resultContainer.innerHTML = resultHtml;
+                        
+                        // Guardar los datos para descargar
+                        extractionResults = {
+                            fullText: fullText,
+                            invoiceNumbers: invoiceNumbers
+                        };
+                        downloadOptions.style.display = 'block';
+                    } else if (data.status === 'succeeded' && data.results && data.results.length > 0) {
+                        // Mostrar resultados normales
                         extractionResults = data.results;
                         displayResults(data.results);
+                        downloadOptions.style.display = 'block';
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        // Para mantener compatibilidad con el formato anterior
+                        extractionResults = data;
+                        displayResults(data);
                         downloadOptions.style.display = 'block';
                     } else {
                         resultContainer.innerHTML = `<div class="empty-state">
@@ -1318,6 +1682,9 @@
                 
                 document.getElementById('empty-state').style.display = 'none';
                 
+                // Verificar si los resultados son números de factura
+                const hasInvoiceNumbers = results.some(item => item.categories && item.categories.includes('numero_factura'));
+                
                 results.forEach((item, index) => {
                     const confidence = parseFloat(item.confidence) || 0;
                     let confidenceClass = 'low-confidence';
@@ -1332,15 +1699,43 @@
                     textItem.className = 'text-item';
                     textItem.style.animationDelay = `${index * 0.1}s`;
                     
-                    textItem.innerHTML = `
-                        <div class="text-content">${item.text}</div>
-                        <div class="text-confidence">
-                            <span>Confianza: ${(confidence * 100).toFixed(1)}%</span>
-                        </div>
-                        <div class="confidence-bar">
-                            <div class="confidence-level ${confidenceClass}" style="width: ${confidence * 100}%"></div>
-                        </div>
-                    `;
+                    // Verificar si es un número de factura
+                    const isInvoiceNumber = item.categories && item.categories.includes('numero_factura');
+                    
+                    if (isInvoiceNumber) {
+                        // Mostrar el número de factura de forma destacada
+                        const invoiceNumber = item.invoice_number || item.text;
+                        textItem.classList.add('invoice-number-item');
+                        
+                        textItem.innerHTML = `
+                            <div class="invoice-number-title">Número de Factura</div>
+                            <div class="invoice-number-value">${invoiceNumber}</div>
+                            <div class="text-confidence">
+                                <span>Confianza: ${(confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-level ${confidenceClass}" style="width: ${confidence * 100}%"></div>
+                            </div>
+                        `;
+                    } else {
+                        // Añadir la descripción del dato extraído
+                        const description = item.description || 'Información adicional del ticket';
+                        const categories = item.categories ? item.categories.join(', ') : 'otro';
+                        
+                        textItem.innerHTML = `
+                            <div class="text-content">${item.text}</div>
+                            <div class="text-description">
+                                <span class="description-label">Tipo de dato:</span> 
+                                <span class="description-text">${description}</span>
+                            </div>
+                            <div class="text-confidence">
+                                <span>Confianza: ${(confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-level ${confidenceClass}" style="width: ${confidence * 100}%"></div>
+                            </div>
+                        `;
+                    }
                     
                     resultsContainer.appendChild(textItem);
                     
@@ -1351,21 +1746,93 @@
                 });
                 
                 // Mostrar notificación de éxito
-                showToast('success', 'Texto extraído', `Se han extraído ${results.length} fragmentos de texto de la imagen.`);
+                if (hasInvoiceNumbers) {
+                    showToast('success', 'Número de Factura Detectado', `Se ha identificado el número de factura en la imagen.`);
+                } else {
+                    showToast('info', 'Texto Extraído', `No se ha detectado un número de factura claro. Se muestran todos los datos extraídos.`);
+                }
             }
             
             document.getElementById('download-txt').addEventListener('click', function() {
-                if (extractionResults.length === 0) {
+                if (!extractionResults) {
                     alert('No hay texto para descargar');
                     return;
                 }
                 
-                const text = extractionResults.map(item => item.text).join('\n');
-                downloadFile(text, 'texto_extraido.txt', 'text/plain');
+                let textContent = 'TEXTO EXTRAÍDO CON SMART VISION\n';
+                textContent += '==============================\n\n';
+                
+                // Verificar si los datos vienen del nuevo formato de GPT-4o
+                if (extractionResults.fullText) {
+                    // Formato nuevo con texto completo y números de factura
+                    const invoiceNumbers = extractionResults.invoiceNumbers || [];
+                    
+                    if (invoiceNumbers.length > 0) {
+                        textContent += 'NÚMEROS DE FACTURA DETECTADOS:\n';
+                        textContent += '--------------------------------\n\n';
+                        
+                        invoiceNumbers.forEach((item, index) => {
+                            textContent += `Número de Factura ${index + 1}: ${item.invoice_number}\n`;
+                            textContent += `   Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%\n\n`;
+                        });
+                    } else {
+                        textContent += 'No se encontraron números de factura.\n\n';
+                    }
+                    
+                    textContent += 'TEXTO COMPLETO EXTRAÍDO:\n';
+                    textContent += '--------------------------------\n\n';
+                    textContent += extractionResults.fullText;
+                    
+                } else if (Array.isArray(extractionResults)) {
+                    // Formato antiguo (array de resultados)
+                    if (extractionResults.length === 0) {
+                        alert('No hay texto para descargar');
+                        return;
+                    }
+                    
+                    // Verificar si los datos son números de factura del análisis avanzado
+                    if (extractionResults[0] && 'invoice_number' in extractionResults[0]) {
+                        textContent += 'NÚMEROS DE FACTURA DETECTADOS:\n';
+                        textContent += '--------------------------------\n\n';
+                        
+                        extractionResults.forEach((item, index) => {
+                            textContent += `Número de Factura ${index + 1}: ${item.invoice_number}\n`;
+                            textContent += `   Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%\n\n`;
+                        });
+                    } else {
+                        // Verificar si hay números de factura en el formato antiguo
+                        const invoiceNumbers = extractionResults.filter(item => 
+                            item.categories && item.categories.includes('numero_factura')
+                        );
+                        
+                        if (invoiceNumbers.length > 0) {
+                            textContent += 'NÚMEROS DE FACTURA DETECTADOS:\n';
+                            textContent += '--------------------------------\n\n';
+                            
+                            invoiceNumbers.forEach((item, index) => {
+                                const invoiceNumber = item.invoice_number || item.text;
+                                textContent += `Número de Factura ${index + 1}: ${invoiceNumber}\n`;
+                                textContent += `   Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%\n\n`;
+                            });
+                        } else {
+                            textContent += 'DATOS EXTRAÍDOS DEL DOCUMENTO:\n';
+                            textContent += '--------------------------------\n\n';
+                            
+                            extractionResults.forEach((item, index) => {
+                                const description = item.description || 'Información adicional del ticket';
+                                textContent += `${index + 1}. ${item.text}\n`;
+                                textContent += `   Tipo de dato: ${description}\n`;
+                                textContent += `   Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%\n\n`;
+                            });
+                        }
+                    }
+                }
+                
+                downloadFile(textContent, 'texto_extraido.txt', 'text/plain');
             });
             
             document.getElementById('download-pdf').addEventListener('click', function() {
-                if (extractionResults.length === 0) {
+                if (!extractionResults) {
                     alert('No hay texto para descargar');
                     return;
                 }
@@ -1379,21 +1846,170 @@
                 doc.setFontSize(12);
                 let y = 30;
                 
-                extractionResults.forEach((item, index) => {
-                    if (y > 270) {
+                // Verificar si los datos vienen del nuevo formato de GPT-4o
+                if (extractionResults.fullText) {
+                    // Formato nuevo con texto completo y números de factura
+                    const invoiceNumbers = extractionResults.invoiceNumbers || [];
+                    const fullText = extractionResults.fullText;
+                    
+                    if (invoiceNumbers.length > 0) {
+                        doc.setFontSize(14);
+                        doc.setTextColor(67, 97, 238);
+                        doc.text('Números de Factura Detectados', 20, y);
+                        y += 10;
+                        
+                        invoiceNumbers.forEach((item, index) => {
+                            if (y > 270) {
+                                doc.addPage();
+                                y = 20;
+                            }
+                            
+                            doc.setFontSize(12);
+                            doc.setTextColor(67, 97, 238);
+                            doc.text(`Número de Factura ${index + 1}:`, 20, y);
+                            y += 7;
+                            
+                            doc.setFontSize(14);
+                            doc.setTextColor(0, 0, 0);
+                            doc.text(item.invoice_number, 25, y);
+                            y += 7;
+                            
+                            doc.setFontSize(10);
+                            doc.setTextColor(100, 100, 100);
+                            doc.text(`Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%`, 25, y);
+                            y += 10;
+                        });
+                    } else {
+                        doc.setFontSize(14);
+                        doc.setTextColor(67, 97, 238);
+                        doc.text('No se encontraron números de factura', 20, y);
+                        y += 10;
+                    }
+                    
+                    // Añadir el texto completo extraído
+                    if (y > 240) {
                         doc.addPage();
                         y = 20;
                     }
                     
-                    doc.text(`${index + 1}. ${item.text}`, 20, y);
-                    y += 7;
-                    doc.setFontSize(10);
-                    doc.setTextColor(100, 100, 100);
-                    doc.text(`Confianza: ${(item.confidence * 100).toFixed(2)}%`, 25, y);
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(14);
+                    doc.setTextColor(67, 97, 238);
+                    doc.text('Texto Completo Extraído', 20, y);
                     y += 10;
-                });
+                    
+                    // Dividir el texto en líneas para que quepa en el PDF
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    
+                    const lines = doc.splitTextToSize(fullText, 170);
+                    
+                    // Añadir líneas al PDF, creando nuevas páginas si es necesario
+                    for (let i = 0; i < lines.length; i++) {
+                        if (y > 280) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        
+                        doc.text(lines[i], 20, y);
+                        y += 6;
+                    }
+                    
+                } else if (Array.isArray(extractionResults)) {
+                    // Formato antiguo (array de resultados)
+                    if (extractionResults.length === 0) {
+                        alert('No hay texto para descargar');
+                        return;
+                    }
+                    
+                    // Verificar si los datos son números de factura del análisis avanzado
+                    if (extractionResults[0] && 'invoice_number' in extractionResults[0]) {
+                        // Mostrar números de factura del análisis avanzado
+                        extractionResults.forEach((item, index) => {
+                            if (y > 270) {
+                                doc.addPage();
+                                y = 20;
+                            }
+                            
+                            doc.setFontSize(14);
+                            doc.setTextColor(67, 97, 238); // Azul para el título
+                            doc.text(`Número de Factura ${index + 1}:`, 20, y);
+                            y += 10;
+                            
+                            doc.setFontSize(16);
+                            doc.setTextColor(0, 0, 0);
+                            doc.text(item.invoice_number, 20, y);
+                            y += 10;
+                            
+                            doc.setFontSize(10);
+                            doc.setTextColor(100, 100, 100);
+                            doc.text(`Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%`, 20, y);
+                            
+                            doc.setFontSize(12);
+                            doc.setTextColor(0, 0, 0);
+                            y += 20;
+                        });
+                    } else {
+                        // Verificar si hay números de factura en el formato antiguo
+                        const invoiceNumbers = extractionResults.filter(item => 
+                            item.categories && item.categories.includes('numero_factura')
+                        );
+                        
+                        if (invoiceNumbers.length > 0) {
+                            // Si hay números de factura, mostrar solo esos
+                            invoiceNumbers.forEach((item, index) => {
+                                if (y > 270) {
+                                    doc.addPage();
+                                    y = 20;
+                                }
+                                
+                                const invoiceNumber = item.invoice_number || item.text;
+                                
+                                doc.setFontSize(14);
+                                doc.setTextColor(67, 97, 238); // Azul para el título
+                                doc.text(`Número de Factura ${index + 1}:`, 20, y);
+                                y += 10;
+                                
+                                doc.setFontSize(16);
+                                doc.setTextColor(0, 0, 0);
+                                doc.text(invoiceNumber, 20, y);
+                                y += 10;
+                                
+                                doc.setFontSize(10);
+                                doc.setTextColor(100, 100, 100);
+                                doc.text(`Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%`, 20, y);
+                                
+                                doc.setFontSize(12);
+                                doc.setTextColor(0, 0, 0);
+                                y += 20;
+                            });
+                        } else {
+                            // Si no hay números de factura, mostrar todos los datos
+                            doc.text('Texto Extraído con Smart Vision', 20, 20);
+                            
+                            extractionResults.forEach((item, index) => {
+                                if (y > 270) {
+                                    doc.addPage();
+                                    y = 20;
+                                }
+                                
+                                doc.text(`${index + 1}. ${item.text}`, 20, y);
+                                y += 7;
+                                doc.setFontSize(10);
+                                doc.setTextColor(100, 100, 100);
+                                
+                                // Añadir la descripción del dato
+                                const description = item.description || 'Información adicional del ticket';
+                                doc.text(`Tipo de dato: ${description}`, 25, y);
+                                y += 5;
+                                
+                                doc.text(`Confianza: ${(parseFloat(item.confidence) * 100).toFixed(1)}%`, 25, y);
+                                doc.setFontSize(12);
+                                doc.setTextColor(0, 0, 0);
+                                y += 12;
+                            });
+                        }
+                    }
+                }
                 
                 const now = new Date();
                 const dateStr = now.toLocaleDateString();
