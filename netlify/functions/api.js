@@ -1,4 +1,4 @@
-// Función serverless para manejar la extracción de texto en Netlify
+// Función serverless para manejar la extracción de texto en Netlify usando Azure OpenAI
 const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
@@ -17,26 +17,27 @@ const upload = multer({ storage: storage });
 // Endpoint para verificar el estado de inicialización
 app.get('/check-init', (req, res) => {
   // Verificar si las variables de entorno están configuradas
-  const endpoint = process.env.AZURE_COMPUTER_VISION_ENDPOINT;
-  const key = process.env.AZURE_COMPUTER_VISION_KEY;
+  const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+  const key = process.env.AZURE_OPENAI_API_KEY;
   
   res.json({
     initialized: !!(endpoint && key),
-    endpoint: endpoint ? endpoint.substring(0, 10) + '...' : 'No configurado',
-    key: key ? key.substring(0, 5) + '...' : 'No configurado'
+    message: "Sistema listo para procesar imágenes con Azure OpenAI"
   });
 });
 
-// Endpoint para extraer texto de imágenes
+// Endpoint para extraer texto de imágenes usando Azure OpenAI
 app.post('/extract-text', upload.single('file'), async (req, res) => {
   try {
     // Verificar si tenemos las credenciales necesarias
-    const endpoint = process.env.AZURE_COMPUTER_VISION_ENDPOINT;
-    const key = process.env.AZURE_COMPUTER_VISION_KEY;
+    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+    const key = process.env.AZURE_OPENAI_API_KEY;
+    const deployment = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini';
+    const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2025-01-01-preview';
     
     if (!endpoint || !key) {
       return res.status(400).json({
-        error: "Cliente de Smart Vision no está inicializado. Verifica las credenciales en las variables de entorno."
+        error: "Cliente de Azure OpenAI no está inicializado. Verifica las credenciales en las variables de entorno."
       });
     }
     
@@ -47,93 +48,166 @@ app.post('/extract-text', upload.single('file'), async (req, res) => {
       });
     }
     
-    console.log("Procesando imagen...");
+    console.log("Procesando imagen con Azure OpenAI...");
     
-    // Preparar la URL para la API de Azure
-    const url = `${endpoint}vision/v3.2/read/analyze`;
+    // Convertir la imagen a base64
+    const imageBase64 = req.file.buffer.toString('base64');
     
-    // Hacer la solicitud a la API de Azure
-    const response = await axios.post(url, req.file.buffer, {
+    // Preparar la URL para la API de Azure OpenAI
+    const url = `${endpoint}openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
+    
+    // Construir el mensaje con la imagen
+    const payload = {
+      "messages": [
+        {
+          "role": "system", 
+          "content": "Eres un asistente especializado en extraer texto de imágenes. Extrae todo el texto visible en la imagen, incluyendo números de factura, fechas, importes y cualquier otra información relevante. Organiza la información de manera clara y estructurada."
+        },
+        {
+          "role": "user", 
+          "content": [
+            {"type": "text", "text": "Extrae todo el texto de esta imagen, prestando especial atención a los números de factura, recibos o tickets."},
+            {"type": "image_url", "image_url": {"url": `data:image/jpeg;base64,${imageBase64}`}}
+          ]
+        }
+      ],
+      "temperature": 0.0,
+      "max_tokens": 4000
+    };
+    
+    // Hacer la solicitud a la API de Azure OpenAI
+    const response = await axios.post(url, payload, {
       headers: {
-        'Ocp-Apim-Subscription-Key': key,
-        'Content-Type': 'application/octet-stream'
+        'Content-Type': 'application/json',
+        'api-key': key
       }
     });
     
     // Verificar si la solicitud fue exitosa
-    if (response.status !== 202) {
-      console.error("Error al iniciar el análisis:", response.status, response.data);
+    if (response.status !== 200) {
+      console.error("Error al procesar la imagen con OpenAI:", response.status, response.data);
       return res.status(response.status).json({
-        error: `Error al iniciar el análisis: ${response.statusText}`
+        error: `Error al procesar la imagen: ${response.statusText}`
       });
     }
     
-    // Obtener la URL de operación del encabezado de respuesta
-    const operationLocation = response.headers['operation-location'];
-    console.log("Operation Location:", operationLocation);
+    // Extraer la respuesta del modelo
+    const responseData = response.data;
     
-    // Esperar a que se complete el procesamiento
-    let result = null;
-    let retries = 0;
-    const maxRetries = 10;
-    
-    while (retries < maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    if ('choices' in responseData && responseData.choices.length > 0) {
+      const extractedText = responseData.choices[0].message.content;
+      console.log("Texto extraído correctamente");
       
-      // Consultar el estado de la operación
-      const statusResponse = await axios.get(operationLocation, {
-        headers: {
-          'Ocp-Apim-Subscription-Key': key
-        }
+      // Extraer números de factura del texto
+      const invoiceNumbers = extractInvoiceNumbers(extractedText);
+      
+      // Devolver los resultados
+      return res.json({
+        success: true,
+        full_text: extractedText,
+        invoice_numbers: invoiceNumbers
       });
-      
-      if (statusResponse.status !== 200) {
-        console.error("Error al obtener resultados:", statusResponse.status, statusResponse.data);
-        return res.status(statusResponse.status).json({
-          error: `Error al obtener resultados: ${statusResponse.statusText}`
-        });
-      }
-      
-      result = statusResponse.data;
-      
-      // Verificar si el procesamiento ha terminado
-      if (result.status !== "notStarted" && result.status !== "running") {
-        break;
-      }
-      
-      retries++;
-      console.log(`Análisis en progreso... Intento ${retries}/${maxRetries}`);
+    } else {
+      console.error("No se pudo extraer texto de la respuesta");
+      return res.status(500).json({
+        success: false,
+        error: "No se pudo extraer texto de la respuesta",
+        raw_response: responseData
+      });
     }
-    
-    // Extraer texto de los resultados
-    const textResults = [];
-    
-    if (result.status === "succeeded") {
-      if (result.analyzeResult && result.analyzeResult.readResults) {
-        for (const page of result.analyzeResult.readResults) {
-          for (const line of page.lines) {
-            textResults.push({
-              text: line.text,
-              bounding_box: line.boundingBox,
-              confidence: 0.9 // La API v3.2 no proporciona confianza por línea
-            });
-          }
-        }
-      }
-    }
-    
-    // Devolver los resultados
-    res.json({
-      status: result.status,
-      results: textResults
-    });
   } catch (error) {
     console.error("Error al procesar la imagen:", error);
     res.status(500).json({
+      success: false,
       error: error.message || "Error al procesar la imagen"
     });
   }
 });
+
+// Función para extraer números de factura del texto
+function extractInvoiceNumbers(text) {
+  const invoiceNumbers = [];
+  
+  // Patrones para buscar números de factura o recibo
+  const patterns = [
+    /(?:factura|fra|ticket|recibo)[\s:.#-]*(?:n[o°º]?[.:]*)?(\s*[A-Z0-9][-A-Z0-9-]{2,20})/i,
+    /(?:n[o°º][.:]*|numero|número)\s*(?:de)?\s*(?:factura|fra|ticket|recibo)[\s:.#-]*([A-Z0-9][-A-Z0-9-]{2,20})/i,
+    /invoice\s*(?:no\.?|number|num|#)[\s:.#-]*([A-Z0-9][-A-Z0-9-]{2,20})/i,
+    /receipt\s*#[\s:]*([0-9]+)/i,
+    /receipt[\s:]*#?[\s:]*([0-9]+)/i,
+    /receipt[\s:#]*([0-9]+)/i,
+    /#[\s:]*([0-9]+)/i
+  ];
+  
+  // Buscar todos los patrones en el texto
+  for (const pattern of patterns) {
+    const matches = text.matchAll(new RegExp(pattern, 'g'));
+    for (const match of matches) {
+      const invoiceNumber = match[1].trim();
+      // Verificar si es un número de factura válido
+      if (isValidInvoiceNumber(invoiceNumber)) {
+        // Añadir a la lista si no está ya
+        if (!invoiceNumbers.some(inv => inv.invoice_number === invoiceNumber)) {
+          invoiceNumbers.push({
+            invoice_number: invoiceNumber,
+            confidence: 0.9  // Alta confianza ya que viene de GPT-4o
+          });
+        }
+      }
+    }
+  }
+  
+  // Buscar también en líneas que contienen palabras clave
+  const keywords = ['factura', 'invoice', 'receipt', 'ticket', 'recibo', 'número', 'number'];
+  const lines = text.split('\n');
+  
+  for (const line of lines) {
+    const lowerLine = line.toLowerCase().trim();
+    if (keywords.some(keyword => lowerLine.includes(keyword))) {
+      // Buscar números en la línea
+      const numberMatches = lowerLine.match(/\b([A-Z0-9][-A-Z0-9]{2,20})\b|\b(\d{4,10})\b/gi);
+      if (numberMatches) {
+        for (const match of numberMatches) {
+          const invoiceNumber = match.trim();
+          if (isValidInvoiceNumber(invoiceNumber)) {
+            if (!invoiceNumbers.some(inv => inv.invoice_number === invoiceNumber)) {
+              invoiceNumbers.push({
+                invoice_number: invoiceNumber,
+                confidence: 0.85
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return invoiceNumbers;
+}
+
+// Función para verificar si un texto es un número de factura válido
+function isValidInvoiceNumber(text) {
+  // Debe tener al menos un dígito
+  if (!/\d/.test(text)) {
+    return false;
+  }
+  
+  // Debe tener una longitud razonable (ni muy corta ni muy larga)
+  if (text.length < 2 || text.length > 30) {
+    return false;
+  }
+  
+  // Evitar palabras comunes que no son números de factura
+  const commonWords = ['total', 'subtotal', 'iva', 'tax', 'amount', 'precio', 'date', 'fecha', 
+                    'customer', 'cliente', 'address', 'direccion', 'telefono', 'phone',
+                    'email', 'web', 'http', 'www', 'com', 'net', 'org', 'es'];
+  
+  if (commonWords.includes(text.toLowerCase())) {
+    return false;
+  }
+  
+  return true;
+}
 
 // Ruta por defecto
 app.get('/', (req, res) => {
